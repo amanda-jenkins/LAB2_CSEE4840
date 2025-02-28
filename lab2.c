@@ -269,13 +269,15 @@ fbputchar(' ',the_rows,columns+1);
 }
 
 memset(msg,' ',sizeof(msg));
+
+// this is for left arrow space
 if(packet.keycode[0]==0x50){
 if(columns>0){
 char prev_char = msg[the_rows-22][columns];
 fbputchar(prev_char,the_rows,columns);
 
 columns--;
-printf("Key pressed");
+printf("Program update, Key pressed");
 fbputchar('_',the_rows,columns);
 fbputchar(prev_char,the_rows,columns-1);
 }
