@@ -387,7 +387,7 @@ if (packet.keycode[0] == 0x4F) {
       clock_gettime(CLOCK_MONOTONIC, &current_time);
       double elapsed_time = (current_time.tv_sec - press_start_time.tv_sec) +
                             (current_time.tv_nsec - press_start_time.tv_nsec) / 1e9;
-      count++;
+      //count++;
 
       // If key is released, break the loop
       if (packet.keycode[0] != last_pressed_key) {
