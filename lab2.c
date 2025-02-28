@@ -233,7 +233,7 @@ fbputchar('*',20,col);
                     continue;
                 }
             } else {
-                key_held = 0; // Reset if a new key is pressed
+                key_held = 0; // Reset if a new key is pressede
             }
 
             last_key = packet.keycode[0]; // Track last key pressed
@@ -361,11 +361,7 @@ if (packet.keycode[0] == 0x4F) {
 //	}
       }
       
-      //longpress
-      if(input==temp)
-      {
-        fbputchar(input, the_rows, columns);
-      }
+      
 if(keystate[1]=='5' && keystate[2]=='0')
 {
 return '\0';
