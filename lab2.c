@@ -427,8 +427,8 @@ if (packet.keycode[0] == 0x4F) {
 //	}
       }
     }
-  }
-}
+  
+
       
 if(keystate[1]=='5' && keystate[2]=='0')
 {
