@@ -200,10 +200,10 @@ fbputchar('*',20,col);
   /* Start the network thread */
   pthread_create(&network_thread, NULL, network_thread_f, NULL);
 
-  int last_key = 0;
-  int key_held = 0;
-  struct timespec last_time, current_time;
-  clock_gettime(CLOCK_MONOTONIC, &last_time);
+  // int last_key = 0;
+  // int key_held = 0;
+  // struct timespec last_time, current_time;
+  // clock_gettime(CLOCK_MONOTONIC, &last_time);
 
   /* Look for and handle keypresses */
   for (;;) {
@@ -218,26 +218,31 @@ fbputchar('*',20,col);
       if (packet.keycode[0] == 0x29) { /* ESC pressed? */
 	      break;
       }
-      if (transferred == sizeof(packet)) {
-        char input = key_input(keystate);
+      // if (transferred == sizeof(packet)) {
+      //   char input = key_input(keystate);
 
-        // Check if input is a valid letter (A-Z, a-z)
-        if ((input >= 'A' && input <= 'Z') || (input >= 'a' && input <= 'z')) {
-            clock_gettime(CLOCK_MONOTONIC, &current_time);
-            double elapsed_time = (current_time.tv_sec - last_time.tv_sec) +
-                                  (current_time.tv_nsec - last_time.tv_nsec) / 1e9;
+      //   // Check if input is a valid letter (A-Z, a-z)
+      //   if ((input >= 'A' && input <= 'Z') || (input >= 'a' && input <= 'z')) {
+      //       clock_gettime(CLOCK_MONOTONIC, &current_time);
+      //       double elapsed_time = (current_time.tv_sec - last_time.tv_sec) +
+      //                             (current_time.tv_nsec - last_time.tv_nsec) / 1e9;
 
-            if (packet.keycode[0] == last_key) {
-                // If key is still held, only register after repeat delay
-                if (key_held && elapsed_time < 0.5) { // 300ms delay before repeating
-                    continue;
-                }
-            } else {
-                key_held = 0; // Reset if a new key is pressede
-            }
+      //       while (packet.keycode[0] == last_key) {
+      //           // If key is still held, only register after repeat delay
+      //           if (key_held && elapsed_time < 0.5) { // 300ms delay before repeating
+      //             msg[the_rows - 22][columns] = input;
+      //             fbputchar(input, the_rows, columns);
+      //             fbputchar('_', the_rows, columns + 1);
+      //             columns++;
+          
+      //             }
+      //         }
+      //         else {
+      //           break;
+      //       }
 
-            last_key = packet.keycode[0]; // Track last key pressed
-            last_time = current_time; // Update last press time
+      //       last_key = packet.keycode[0]; // Track last key pressed
+      //       last_time = current_time; // Update last press time
 
             // Allow only letters to be displayed
             if (columns < 63) {
@@ -251,18 +256,14 @@ fbputchar('*',20,col);
         }
     }
 
-
-
       /*
       * To handle the keyboard input; can also write this in a seperate function
       */
       if (packet.keycode[0] == 0x28) { //Enter     
-	 int rows, cols;
-//	memset(displ;
-      
+	      int rows, cols;
+        //	memset(displ;
         fbdisplay(msg);
-
-	memset(display[19],' ',64);
+	      memset(display[19],' ',64);
   //       clear();
   //       fbdisplay(msg);
 
@@ -300,12 +301,12 @@ fbputchar('*',20,col);
 //backspace
 if(packet.keycode[0]==0x2A){
 if(columns>0){
-columns--;
-msg[the_rows-22][columns]=' ';
-fbputchar(' ',the_rows,columns);
-fbputchar('_',the_rows,columns);
-fbputchar(' ',the_rows,columns+1);
-}
+  columns--;
+  msg[the_rows-22][columns]=' ';
+  fbputchar(' ',the_rows,columns);
+  fbputchar('_',the_rows,columns);
+  fbputchar(' ',the_rows,columns+1);
+  }
 }
 
 //memset(msg,' ',sizeof(msg));
@@ -351,16 +352,83 @@ if (packet.keycode[0] == 0x4F) {
    //checks if it is a valid char
    // if(keystate[1]=='5'){
     // if(keystate[2]!='0'){
-      if (columns < 63) {  //check condition that the row has space
+      // Track last pressed key and time
+
+    static char last_pressed_key = '\0';
+    static int key_held = 0;
+    struct timespec press_start_time, current_time;
+    int counter = 0;
+
+    if (input != '\0') {
+      // If a new key is pressed, reset the tracking variables
+      if (input != last_pressed_key) {
+          last_pressed_key = input;
+          key_held = 0; // Reset held flag
+          clock_gettime(CLOCK_MONOTONIC, &press_start_time); // Record keypress time
+      }
+
+
+      if (columns < 63) { 
+         //check condition that the row has space
+        char temp = input; 
         msg[the_rows-22][columns] = input;             // store typed character
-        char temp = input;
+        char temp = input;              
         fbputchar(input, the_rows, columns);           // display on screen
         fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
         columns++;
+        }
+
+    // Check if the key is being held
+    while (1) {
+      libusb_interrupt_transfer(keyboard, endpoint_address,
+                                (unsigned char *)&packet, sizeof(packet),
+                                &transferred, 0);
+
+      clock_gettime(CLOCK_MONOTONIC, &current_time);
+      double elapsed_time = (current_time.tv_sec - press_start_time.tv_sec) +
+                            (current_time.tv_nsec - press_start_time.tv_nsec) / 1e9;
+      count++;
+
+      // If key is released, break the loop
+      if (packet.keycode[0] != last_pressed_key) {
+          key_held = 0;
+          break;
+      }
+
+      // If key has been held for 1 second, start repeating
+      if (elapsed_time >= 1.0) {
+          key_held = 1; // Mark that key is being held
+
+          // Repeat character every 100ms while key is held
+          while (packet.keycode[0] == last_pressed_key) {
+              clock_gettime(CLOCK_MONOTONIC, &current_time);
+              double repeat_elapsed = (current_time.tv_sec - press_start_time.tv_sec) +
+                                      (current_time.tv_nsec - press_start_time.tv_nsec) / 1e9;
+
+              if (repeat_elapsed > 0.1) { // 100ms delay for auto-repeat
+                  if (columns < 63) {
+                      msg[the_rows - 22][columns] = input;
+                      fbputchar(input, the_rows, columns);
+                      fbputchar('_', the_rows, columns + 1);
+                      columns++;
+                  }
+                  clock_gettime(CLOCK_MONOTONIC, &press_start_time); // Reset timer for repeat rate
+              }
+
+              // Check again if key is released
+              libusb_interrupt_transfer(keyboard, endpoint_address,
+                                        (unsigned char *)&packet, sizeof(packet),
+                                        &transferred, 0);
+              if (packet.keycode[0] != last_pressed_key) {
+                  key_held = 0;
+                  break;
+              }
 //	}
 //	}
       }
-      
+    }
+  }
+}
       
 if(keystate[1]=='5' && keystate[2]=='0')
 {
