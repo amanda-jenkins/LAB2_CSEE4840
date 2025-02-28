@@ -200,6 +200,11 @@ fbputchar('*',20,col);
   /* Start the network thread */
   pthread_create(&network_thread, NULL, network_thread_f, NULL);
 
+  int last_key = 0;
+  int key_held = 0;
+  struct timespec last_time, current_time;
+  clock_gettime(CLOCK_MONOTONIC, &last_time);
+
   /* Look for and handle keypresses */
   for (;;) {
     libusb_interrupt_transfer(keyboard, endpoint_address,
@@ -211,8 +216,43 @@ fbputchar('*',20,col);
       printf("%s\n", keystate);
       fbputs(keystate, 6, 0);
       if (packet.keycode[0] == 0x29) { /* ESC pressed? */
-	break;
+	      break;
       }
+      if (transferred == sizeof(packet)) {
+        char input = key_input(keystate);
+
+        // Check if input is a valid letter (A-Z, a-z)
+        if ((input >= 'A' && input <= 'Z') || (input >= 'a' && input <= 'z')) {
+            clock_gettime(CLOCK_MONOTONIC, &current_time);
+            double elapsed_time = (current_time.tv_sec - last_time.tv_sec) +
+                                  (current_time.tv_nsec - last_time.tv_nsec) / 1e9;
+
+            if (packet.keycode[0] == last_key) {
+                // If key is still held, only register after repeat delay
+                if (key_held && elapsed_time < 0.5) { // 300ms delay before repeating
+                    continue;
+                }
+            } else {
+                key_held = 0; // Reset if a new key is pressed
+            }
+
+            last_key = packet.keycode[0]; // Track last key pressed
+            last_time = current_time; // Update last press time
+
+            // Allow only letters to be displayed
+            if (columns < 63) {
+                msg[the_rows - 22][columns] = input;
+                fbputchar(input, the_rows, columns);
+                fbputchar('_', the_rows, columns + 1);
+                columns++;
+            }
+
+            key_held = 1; // Mark key as being held
+        }
+    }
+
+
+
       /*
       * To handle the keyboard input; can also write this in a seperate function
       */
@@ -313,11 +353,18 @@ if (packet.keycode[0] == 0x4F) {
     // if(keystate[2]!='0'){
       if (columns < 63) {  //check condition that the row has space
         msg[the_rows-22][columns] = input;             // store typed character
+        char temp = input;
         fbputchar(input, the_rows, columns);           // display on screen
         fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
         columns++;
 //	}
 //	}
+      }
+      
+      //longpress
+      if(input==temp)
+      {
+        fbputchar(input, the_rows, columns);
       }
 if(keystate[1]=='5' && keystate[2]=='0')
 {
@@ -332,6 +379,7 @@ return '\0';
         the_rows = 23;
       } 
     }
+    //char temp = input
     fbputchar(key_input(keystate), 0, 54);
 
 
