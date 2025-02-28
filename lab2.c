@@ -286,7 +286,7 @@ if(packet.keycode[0]==0x50){
 
 // Right arrow Key
 if (packet.keycode[0] == 0x4F) {
-  if (columns < 63 && columnns > 0 && msg[the_rows-22][columns + 1] != '\0') { 
+  if (columns < 63 && columns > 0 && msg[the_rows-22][columns + 1] != '\0') { 
       fbputchar(msg[the_rows-22][columns], the_rows, columns); // Restore previous character
       columns++; // Move cursor right
       fbputchar('_', the_rows, columns); // Place cursor at new position
