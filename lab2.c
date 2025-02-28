@@ -370,7 +370,7 @@ if (packet.keycode[0] == 0x4F) {
 
       if (columns < 63) { 
          //check condition that the row has space
-        char temp = input; 
+        //char temp = input; 
         msg[the_rows-22][columns] = input;             // store typed character
         char temp = input;              
         fbputchar(input, the_rows, columns);           // display on screen
