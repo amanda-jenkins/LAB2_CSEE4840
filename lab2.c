@@ -268,7 +268,7 @@ fbputchar(' ',the_rows,columns+1);
 }
 }
 
-memset(msg,' ',sizeof(msg));
+//memset(msg,' ',sizeof(msg));
 
 // this is for left arrow space
 if(packet.keycode[0]==0x50){
