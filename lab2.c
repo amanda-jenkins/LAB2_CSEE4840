@@ -13,6 +13,8 @@
 #include <unistd.h>
 #include "usbkeyboard.h"
 #include <pthread.h>
+#include <stdbool.h>
+#include <time.h>
 
 /* Update SERVER_HOST to be the IP address of
  * the chat server you are connecting to
@@ -110,6 +112,12 @@ int main()
   struct usb_keyboard_packet packet;
   int transferred;
   char keystate[12];
+
+  bool key_pressed = false;
+  char last_key = '\0';
+  clock_t key_press_time = 0;
+  const long repeat_delay = 1000; // 1 second delay before repeating
+  const long repeat_interval = 100; // Repeat every 100ms
 
   //20 lines; 64 char buffer, we can change the buffer size
   char msg[2][64];
@@ -310,39 +318,62 @@ if (packet.keycode[0] == 0x4F) {
    // if(keystate[1]=='5'){
     // if(keystate[2]!='0'){
       if (columns < 63) {  //check condition that the row has space
-        //msg[the_rows-22][columns] = input;             // store typed character
-        //fbputchar(input, the_rows, columns);           // display on screen
-        //fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
-        //columns++;
-        char input = key_input(keystate);  // Get ASCII character
-        int time_held = 0;  // Track how long the key has been held
-
-        while (input != '\0') {
-          char prev_char = msg[the_rows - 22][columns];  // Store previous character
-          msg[the_rows - 22][columns] = input;  // Store new character
-          fbputchar(input, the_rows, columns);  // Display new character
-          fbputchar('_', the_rows, columns + 1);  // Move cursor forward
+        //if (!key_pressed || input != last_key) {
+          key_pressed = true;
+          last_key = input;
+          key_press_time = current_time;
+          msg[the_rows-22][columns] = input;             // store typed character
+          fbputchar(input, the_rows, columns);           // display on screen
+          fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
           columns++;
-
-          usleep(100000);  // Delay (100ms) to control repeat speed
-          time_held += 100;  // Increment held time (in ms)
-
-
-        // Check if the key is still held down, break if released
-        char next_input = key_input(keystate);
-        if (next_input == '\0') {
-            break;
+        //} 
+          while (key_pressed && input == last_key) {
+            long elapsed_time = (current_time - key_press_time) * 1000 / CLOCKS_PER_SEC;
+            if (elapsed_time >= repeat_delay) {  // Key held for more than 1 second
+                long repeat_time = elapsed_time - repeat_delay;
+                if (repeat_time % repeat_interval == 0) {  // Repeat at intervals
+                    handle_key_input(input, the_rows, columns);
+                }
+              }
+              if(elapsed_time==3000) 
+                break;
+            }
+      
+          
         }
 
-        // If key is held for 3 seconds (3000ms), break out
-        if (time_held >= 3000) {
-            break;
-        }
+      }
+    
+
+        
+        // char input = key_input(keystate);  // Get ASCII character
+        // int time_held = 0;  // Track how long the key has been held
+          //while (input != '\0') {
+          // char prev_char = msg[the_rows - 22][columns];  // Store previous character
+          // msg[the_rows - 22][columns] = input;  // Store new character
+          // fbputchar(input, the_rows, columns);  // Display new character
+          // fbputchar('_', the_rows, columns + 1);  // Move cursor forward
+          // columns++;
+          //printf("long press detected");
+
+        //   usleep(100000);  // Delay (100ms) to control repeat speed
+        //   time_held += 100;  // Increment held time (in ms)
+
+
+        // // Check if the key is still held down, break if released
+        // char next_input = key_input(keystate);
+        // if (next_input == '\0') {
+        //     break;
+        // }
+        // // If key is held for 3 seconds (3000ms), break out
+        // if (time_held >= 3000) {
+        //     break;
+        // }
 //	}
 //	}
-      }
-      }
-    }
+      
+      
+    
 if(keystate[1]=='5' && keystate[2]=='0')
 {
 return '\0';
