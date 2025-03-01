@@ -315,38 +315,66 @@ if (packet.keycode[0] == 0x4F) {
     // this converts keycode to ASCII & store in message buffer
     char input = key_input(keystate);
     if (input != '\0') {
+      clock_t current_time = clock();
+      if (!key_pressed || input != last_key) { // New key or first press
+        key_pressed = true;
+        last_key = input;
+        key_press_time = current_time;
+        if (columns < 63) {
+            msg[the_rows - 22][columns] = input;
+            fbputchar(input, the_rows, columns);
+            fbputchar('_', the_rows, columns + 1);
+            columns++;
+        }
+      } else if (key_pressed && input == last_key) { // Key is being held
+        long elapsed_time = (current_time - key_press_time) * 1000 / CLOCKS_PER_SEC;
+        if (elapsed_time >= repeat_delay) { // Key held for more than 1 second
+            long repeat_time = elapsed_time - repeat_delay;
+            if (repeat_time % repeat_interval == 0) { // Repeat at intervals
+                if (columns < 63) {
+                    msg[the_rows - 22][columns] = input;
+                    fbputchar(input, the_rows, columns);
+                    fbputchar('_', the_rows, columns + 1);
+                    columns++;
+                }
+            }
+        }
+      }
+      else { // Key is released
+        key_pressed = false;
+        last_key = '\0';
+        key_press_time = 0;
+      }
+      fbputchar(key_input(keystate), 0, 54);
+    }
+  
+  
    //checks if it is a valid char
    // if(keystate[1]=='5'){
     // if(keystate[2]!='0'){
-      if (columns < 63) {  //check condition that the row has space
-        //if (!key_pressed || input != last_key) {
-          key_pressed = true;
-          last_key = input;
-          key_press_time = current_time;
-          msg[the_rows-22][columns] = input;             // store typed character
-          fbputchar(input, the_rows, columns);           // display on screen
-          fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
-          columns++;
+      // if (columns < 63) {  //check condition that the row has space
+      //     msg[the_rows-22][columns] = input;             // store typed character
+      //     fbputchar(input, the_rows, columns);           // display on screen
+      //     fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
+      //     columns++;
         //} 
-          while (key_pressed && input == last_key) {
-            long elapsed_time = (current_time - key_press_time) * 1000 / CLOCKS_PER_SEC;
-            if (elapsed_time >= repeat_delay) {  // Key held for more than 1 second
-                long repeat_time = elapsed_time - repeat_delay;
-                if (repeat_time % repeat_interval == 0) {  // Repeat at intervals
-                  msg[the_rows-22][columns] = input;             // store typed character
-                  fbputchar(input, the_rows, columns);           // display on screen
-                  fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
-                  columns++;
-                }
-              }
-              if(elapsed_time==30000) 
-                break;
-            }
+          // while (key_pressed && input == last_key) {
+          //   long elapsed_time = (current_time - key_press_time) * 1000 / CLOCKS_PER_SEC;
+          //   if (elapsed_time >= repeat_delay) {  // Key held for more than 1 second
+          //       long repeat_time = elapsed_time - repeat_delay;
+          //       if (repeat_time % repeat_interval == 0) {  // Repeat at intervals
+          //         msg[the_rows-22][columns] = input;             // store typed character
+          //         fbputchar(input, the_rows, columns);           // display on screen
+          //         fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
+          //         columns++;
+          //       }
+          //     }
+          //     if(elapsed_time==30000) 
+          //       break;
+          //   }
       
           
-        }
 
-      }
     
 
         
