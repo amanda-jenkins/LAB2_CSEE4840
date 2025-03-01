@@ -13,8 +13,6 @@
 #include <unistd.h>
 #include "usbkeyboard.h"
 #include <pthread.h>
-#include <stdbool.h>
-#include <time.h>
 
 /* Update SERVER_HOST to be the IP address of
  * the chat server you are connecting to
@@ -112,13 +110,6 @@ int main()
   struct usb_keyboard_packet packet;
   int transferred;
   char keystate[12];
-
-  bool key_pressed = false;
-  char last_key = '\0';
-  clock_t key_press_time = 0;
-  clock_t current_time = 0;
-  const long repeat_delay = 2000; // 1 second delay before repeating
-  const long repeat_interval = 200; // Repeat every 100ms
 
   //20 lines; 64 char buffer, we can change the buffer size
   char msg[2][64];
@@ -313,105 +304,31 @@ if (packet.keycode[0] == 0x4F) {
       cursor_place = 1;
     }
     // this converts keycode to ASCII & store in message buffer
+
+    clock_t key_press_start = 0;
+    char last_pressed_key = '\0';
     char input = key_input(keystate);
-    while (1) {
+
     if (input != '\0') {
-      clock_t current_time = clock();
-      if (!key_pressed || input != last_key) { // New key or first press
-        key_pressed = true;
-        last_key = input;
-        key_press_time = current_time;
-        if (columns < 63) {
-            msg[the_rows - 22][columns] = input;
-            fbputchar(input, the_rows, columns);
-            fbputchar('_', the_rows, columns + 1);
-            columns++;
+      clock_t now = clock();  // Get current time
+      if (input == last_pressed_key) {
+        // If the key is being held, check duration
+        double elapsed_time = (double)(now - key_press_start) / CLOCKS_PER_SEC;
+        if (elapsed_time < 2.0) {
+            return; // Ignore input if it's before 1 second
         }
-      } else if (key_pressed && input == last_key) { // Key is being held
-        long elapsed_time = (current_time - key_press_time) * 1000 / CLOCKS_PER_SEC;
-        if (elapsed_time >= repeat_delay) { // Key held for more than 1 second
-            long repeat_time = elapsed_time - repeat_delay;
-            if (repeat_time % repeat_interval == 0) { // Repeat at intervals
-                if (columns < 63) {
-                    msg[the_rows - 22][columns] = input;
-                    fbputchar(input, the_rows, columns);
-                    fbputchar('_', the_rows, columns + 1);
-                    columns++;
-                }
-            
-        }
+        else {
+          // New key press, reset timer
+          key_press_start = now;
+          last_pressed_key = input;
       }
-      }
-      else { // Key is released
-        key_pressed = false;
-        last_key = '\0';
-        key_press_time = 0;
-      }
-      //fbputchar(key_input(keystate), 0, 54);
-    }
 
-  }
-  
-    
-  
-  
-   //checks if it is a valid char
-   // if(keystate[1]=='5'){
-    // if(keystate[2]!='0'){
-      // if (columns < 63) {  //check condition that the row has space
-      //     msg[the_rows-22][columns] = input;             // store typed character
-      //     fbputchar(input, the_rows, columns);           // display on screen
-      //     fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
-      //     columns++;
-        //} 
-          // while (key_pressed && input == last_key) {
-          //   long elapsed_time = (current_time - key_press_time) * 1000 / CLOCKS_PER_SEC;
-          //   if (elapsed_time >= repeat_delay) {  // Key held for more than 1 second
-          //       long repeat_time = elapsed_time - repeat_delay;
-          //       if (repeat_time % repeat_interval == 0) {  // Repeat at intervals
-          //         msg[the_rows-22][columns] = input;             // store typed character
-          //         fbputchar(input, the_rows, columns);           // display on screen
-          //         fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
-          //         columns++;
-          //       }
-          //     }
-          //     if(elapsed_time==30000) 
-          //       break;
-          //   }
-      
-        
-        // char input = key_input(keystate);  // Get ASCII character
-        // int time_held = 0;  // Track how long the key has been held
-          //while (input != '\0') {
-          // char prev_char = msg[the_rows - 22][columns];  // Store previous character
-          // msg[the_rows - 22][columns] = input;  // Store new character
-          // fbputchar(input, the_rows, columns);  // Display new character
-          // fbputchar('_', the_rows, columns + 1);  // Move cursor forward
-          // columns++;
-          //printf("long press detected");
-
-        //   usleep(100000);  // Delay (100ms) to control repeat speed
-        //   time_held += 100;  // Increment held time (in ms)
-
-
-        // // Check if the key is still held down, break if released
-        // char next_input = key_input(keystate);
-        // if (next_input == '\0') {
-        //     break;
-        // }
-        // // If key is held for 3 seconds (3000ms), break out
-        // if (time_held >= 3000) {
-        //     break;
-        // }
-//	}
-//	}
-      
-      
-    
-if(keystate[1]=='5' && keystate[2]=='0')
-{
-return '\0';
-}
+      if (columns < 63) {  //check condition that the row has space
+        msg[the_rows-22][columns] = input;             // store typed character
+        fbputchar(input, the_rows, columns);           // display on screen
+        fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
+        columns++;
+      } 
       //checks if the row is full (enables text wrapping) -> move to next row in this case
       else if ((columns == 63) & (the_rows == 22)) { 
         msg[0][63] = input;                       // Store the last character in row 22
@@ -419,14 +336,17 @@ return '\0';
         fbputchar('_', 23, 0);                    // Move cursor to row 23
         columns = 0;
         the_rows = 23;
-      } 
+      }
     }
     fbputchar(key_input(keystate), 0, 54);
-
-
-	
   }
-  
+
+	    
+
+
+    }
+  }
+
 
   /* Terminate the network thread */
   pthread_cancel(network_thread);
@@ -436,7 +356,6 @@ return '\0';
 
   return 0;
 }
-
 
 //should run concurrently with the main program
 void *network_thread_f(void *ignored)
