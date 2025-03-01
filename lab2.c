@@ -116,6 +116,7 @@ int main()
   bool key_pressed = false;
   char last_key = '\0';
   clock_t key_press_time = 0;
+  clock_t current_time = 0;
   const long repeat_delay = 1000; // 1 second delay before repeating
   const long repeat_interval = 100; // Repeat every 100ms
 
