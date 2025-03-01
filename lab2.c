@@ -118,7 +118,7 @@ int main()
   clock_t key_press_time = 0;
   clock_t current_time = 0;
   const long repeat_delay = 1000; // 1 second delay before repeating
-  const long repeat_interval = 100; // Repeat every 100ms
+  const long repeat_interval = 2000; // Repeat every 100ms
 
   //20 lines; 64 char buffer, we can change the buffer size
   char msg[2][64];
@@ -314,7 +314,7 @@ if (packet.keycode[0] == 0x4F) {
     }
     // this converts keycode to ASCII & store in message buffer
     char input = key_input(keystate);
-    while(1) {
+    while (1) {
     if (input != '\0') {
       clock_t current_time = clock();
       if (!key_pressed || input != last_key) { // New key or first press
@@ -330,8 +330,8 @@ if (packet.keycode[0] == 0x4F) {
       } else if (key_pressed && input == last_key) { // Key is being held
         long elapsed_time = (current_time - key_press_time) * 1000 / CLOCKS_PER_SEC;
         if (elapsed_time >= repeat_delay) { // Key held for more than 1 second
-            // long repeat_time = elapsed_time - repeat_delay;
-            // if (repeat_time % repeat_interval == 0) { // Repeat at intervals
+            long repeat_time = elapsed_time - repeat_delay;
+            if (repeat_time % repeat_interval == 0) { // Repeat at intervals
                 if (columns < 63) {
                     msg[the_rows - 22][columns] = input;
                     fbputchar(input, the_rows, columns);
@@ -341,15 +341,17 @@ if (packet.keycode[0] == 0x4F) {
             
         }
       }
+      }
       else { // Key is released
         key_pressed = false;
         last_key = '\0';
         key_press_time = 0;
       }
       //fbputchar(key_input(keystate), 0, 54);
-      
     }
+
   }
+  
     
   
   
@@ -377,10 +379,6 @@ if (packet.keycode[0] == 0x4F) {
           //       break;
           //   }
       
-          
-
-    
-
         
         // char input = key_input(keystate);  // Get ASCII character
         // int time_held = 0;  // Track how long the key has been held
@@ -427,7 +425,7 @@ return '\0';
 
 
 	
-    }
+  }
   
 
   /* Terminate the network thread */
