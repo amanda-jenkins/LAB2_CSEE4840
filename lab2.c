@@ -380,13 +380,14 @@ void *network_thread_f(void *ignored)
     // // Copy new message into the last two rows
     // strncpy(display[18], recvBuf, 64);
 
-    // // Redraw framebuffer with new messages
-    // for (r = 0; r < 20; r++) {
-    //     for (c = 0; c < 64; c++) {
-    //         fbputchar(display[r][c], r + 1, c);
-    //     }
-    // }
+    // Redraw framebuffer with new messages
+    for (r = 0; r < 20; r++) {
+        for (c = 0; c < 64; c++) {
+            fbputchar(display[r][c], r + 1, c);
+        }
+    
 }
+  }
 
 if (data == 0) {
     printf("## Server disconnected\n");
