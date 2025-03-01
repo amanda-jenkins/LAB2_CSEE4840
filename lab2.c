@@ -333,7 +333,13 @@ if (packet.keycode[0] == 0x4F) {
             if (elapsed_time >= repeat_delay) {  // Key held for more than 1 second
                 long repeat_time = elapsed_time - repeat_delay;
                 if (repeat_time % repeat_interval == 0) {  // Repeat at intervals
-                    handle_key_input(input, the_rows, columns);
+                  key_pressed = true;
+                  last_key = input;
+                  key_press_time = current_time;
+                  msg[the_rows-22][columns] = input;             // store typed character
+                  fbputchar(input, the_rows, columns);           // display on screen
+                  fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
+                  columns++;
                 }
               }
               if(elapsed_time==3000) 
