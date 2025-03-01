@@ -366,26 +366,26 @@ void *network_thread_f(void *ignored)
     printf("%s\n", recvBuf); // Print received message for debugging
     
     // Shift old messages up to make room for new ones
-    int r, c;
-    for (r = 0; r < 18; r++) {
-        for (c = 0; c < 64; c++) {
-            display[r][c] = display[r + 2][c];
-        }
-    }
+    // int r, c;
+    // for (r = 0; r < 18; r++) {
+    //     for (c = 0; c < 64; c++) {
+    //         display[r][c] = display[r + 2][c];
+    //     }
+    // }
 
-    // Clear the last two rows
-    memset(display[18], ' ', 64);
-    memset(display[19], ' ', 64);
+    // // Clear the last two rows
+    // memset(display[18], ' ', 64);
+    // memset(display[19], ' ', 64);
 
-    // Copy new message into the last two rows
-    strncpy(display[18], recvBuf, 64);
+    // // Copy new message into the last two rows
+    // strncpy(display[18], recvBuf, 64);
 
-    // Redraw framebuffer with new messages
-    for (r = 0; r < 20; r++) {
-        for (c = 0; c < 64; c++) {
-            fbputchar(display[r][c], r + 1, c);
-        }
-    }
+    // // Redraw framebuffer with new messages
+    // for (r = 0; r < 20; r++) {
+    //     for (c = 0; c < 64; c++) {
+    //         fbputchar(display[r][c], r + 1, c);
+    //     }
+    // }
 }
 
 if (data == 0) {
