@@ -395,34 +395,34 @@ if (packet.keycode[0] == 0x4F) {
           break;
       }
 
-      // If key has been held for 1 second, start repeating
-      if (elapsed_time >= 1.0) {
-          key_held = 1; // Mark that key is being held
+      // // If key has been held for 1 second, start repeating
+      // if (elapsed_time >= 1.0) {
+      //     key_held = 1; // Mark that key is being held
 
-          // Repeat character every 100ms while key is held
-          while (packet.keycode[0] == last_pressed_key) {
-              clock_gettime(CLOCK_MONOTONIC, &current_time);
-              double repeat_elapsed = (current_time.tv_sec - press_start_time.tv_sec) +
-                                      (current_time.tv_nsec - press_start_time.tv_nsec) / 1e9;
+      //     // Repeat character every 100ms while key is held
+      //     while (packet.keycode[0] == last_pressed_key) {
+      //         clock_gettime(CLOCK_MONOTONIC, &current_time);
+      //         double repeat_elapsed = (current_time.tv_sec - press_start_time.tv_sec) +
+      //                                 (current_time.tv_nsec - press_start_time.tv_nsec) / 1e9;
 
-              if (repeat_elapsed > 0.1) { // 100ms delay for auto-repeat
-                  if (columns < 63) {
-                      msg[the_rows - 22][columns] = input;
-                      fbputchar(input, the_rows, columns);
-                      fbputchar('_', the_rows, columns + 1);
-                      columns++;
-                  }
-                  clock_gettime(CLOCK_MONOTONIC, &press_start_time); // Reset timer for repeat rate
-              }
+      //         if (repeat_elapsed > 0.1) { // 100ms delay for auto-repeat
+      //             if (columns < 63) {
+      //                 msg[the_rows - 22][columns] = input;
+      //                 fbputchar(input, the_rows, columns);
+      //                 fbputchar('_', the_rows, columns + 1);
+      //                 columns++;
+      //             }
+      //             clock_gettime(CLOCK_MONOTONIC, &press_start_time); // Reset timer for repeat rate
+      //         }
 
-              // Check again if key is released
-              libusb_interrupt_transfer(keyboard, endpoint_address,
-                                        (unsigned char *)&packet, sizeof(packet),
-                                        &transferred, 0);
-              if (packet.keycode[0] != last_pressed_key) {
-                  key_held = 0;
-                  break;
-              }
+      //         // Check again if key is released
+      //         libusb_interrupt_transfer(keyboard, endpoint_address,
+      //                                   (unsigned char *)&packet, sizeof(packet),
+      //                                   &transferred, 0);
+      //         if (packet.keycode[0] != last_pressed_key) {
+      //             key_held = 0;
+      //             break;
+      //         }
 //	}
 //	}
       }
@@ -447,11 +447,12 @@ return '\0';
     fbputchar(key_input(keystate), 0, 54);
 
 
-	    
+  
 
 
-    }
-  }
+
+
+  
 
   /* Terminate the network thread */
   pthread_cancel(network_thread);
