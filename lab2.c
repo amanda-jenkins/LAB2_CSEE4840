@@ -378,7 +378,7 @@ void *network_thread_f(void *ignored)
     // memset(display[19], ' ', 64);
 
     // // Copy new message into the last two rows
-    // strncpy(display[18], recvBuf, 64);
+    strncpy(display[18], recvBuf, 64);
 
     // Redraw framebuffer with new messages
     for (r = 0; r < 20; r++) {
