@@ -314,6 +314,7 @@ if (packet.keycode[0] == 0x4F) {
     }
     // this converts keycode to ASCII & store in message buffer
     char input = key_input(keystate);
+    while(1) {
     if (input != '\0') {
       clock_t current_time = clock();
       if (!key_pressed || input != last_key) { // New key or first press
@@ -345,8 +346,11 @@ if (packet.keycode[0] == 0x4F) {
         last_key = '\0';
         key_press_time = 0;
       }
-      fbputchar(key_input(keystate), 0, 54);
+      //fbputchar(key_input(keystate), 0, 54);
+      
     }
+  }
+    
   
   
    //checks if it is a valid char
