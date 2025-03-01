@@ -359,11 +359,9 @@ return '\0';
     fbputchar(key_input(keystate), 0, 54);
 
 
-	    
-
-
+	
     }
-  }
+  
 
   /* Terminate the network thread */
   pthread_cancel(network_thread);
@@ -373,6 +371,7 @@ return '\0';
 
   return 0;
 }
+
 
 //should run concurrently with the main program
 void *network_thread_f(void *ignored)
