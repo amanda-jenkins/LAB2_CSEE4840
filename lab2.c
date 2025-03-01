@@ -339,7 +339,7 @@ if (packet.keycode[0] == 0x4F) {
                   columns++;
                 }
               }
-              if(elapsed_time==3000) 
+              if(elapsed_time==30000) 
                 break;
             }
       
