@@ -219,7 +219,7 @@ fbputchar('*',20,col);
       if (packet.keycode[0] == 0x28) { //Enter     
 	 int rows, cols;
 //	memset(displ;
-
+      
         fbdisplay(msg);
 
 	memset(display[19],' ',64);
@@ -287,7 +287,6 @@ if(packet.keycode[0]==0x50){
 // Right arrow Key
 if (packet.keycode[0] == 0x4F) {
   if (columns < 63 && columns > 0 && msg[the_rows-22][columns + 1] != '\0') { 
-  if (columns < 63 && columns > 0 && msg[the_rows-22][columns + 1] != '\0') { 
       fbputchar(msg[the_rows-22][columns], the_rows, columns); // Restore previous character
       columns++; // Move cursor right
       fbputchar('_', the_rows, columns); // Place cursor at new position
@@ -307,7 +306,7 @@ if (packet.keycode[0] == 0x4F) {
     // this converts keycode to ASCII & store in message buffer
     char input = key_input(keystate);
     if (input != '\0')
-
+ 
 {
    //checks if it is a valid char
    // if(keystate[1]=='5'){
@@ -336,7 +335,7 @@ return '\0';
     fbputchar(key_input(keystate), 0, 54);
 
 
-
+	    
 
 
     }
@@ -369,11 +368,10 @@ void *network_thread_f(void *ignored)
   // messages recieved from the chat server to display them 
   //strncpy(printBuf[0], recvBuf, BUFFER_SIZE/2);
   //strncpy(printBuf[2], recvBuf, BUFFER_SIZE/2);
-
+  
   //fbdisplay(printBuf);
 
   return NULL;
 }
 
-}
 
