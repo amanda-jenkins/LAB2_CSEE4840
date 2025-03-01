@@ -366,7 +366,7 @@ void *network_thread_f(void *ignored)
     printf("%s\n", recvBuf); // Print received message for debugging
     
     // Shift old messages up to make room for new ones
-    // int r, c;
+    int r, c;
     // for (r = 0; r < 18; r++) {
     //     for (c = 0; c < 64; c++) {
     //         display[r][c] = display[r + 2][c];
