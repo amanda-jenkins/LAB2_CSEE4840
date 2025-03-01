@@ -315,7 +315,7 @@ if (packet.keycode[0] == 0x4F) {
         // If the key is being held, check duration
         double elapsed_time = (double)(now - key_press_start) / CLOCKS_PER_SEC;
         if (elapsed_time < 2.0) {
-            printf("chec")
+            printf("check");
             return; // Ignore input if it's before 1 second
         }
         else {
