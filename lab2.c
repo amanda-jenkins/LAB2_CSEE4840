@@ -304,32 +304,25 @@ if (packet.keycode[0] == 0x4F) {
       cursor_place = 1;
     }
     // this converts keycode to ASCII & store in message buffer
-
-    clock_t key_press_start = 0;
-    char last_pressed_key = '0x55';
     char input = key_input(keystate);
-
-    if (input != '\0') {
-      clock_t now = clock();  // Get current time
-      if (input == last_pressed_key) {
-        // If the key is being held, check duration
-        double elapsed_time = (double)(now - key_press_start) / CLOCKS_PER_SEC;
-        if (elapsed_time < 2.0) {
-            printf("check");
-            return; // Ignore input if it's before 1 second
-        }
-        else {
-          // New key press, reset timer
-          key_press_start = now;
-          last_pressed_key = input;
-      }
-
+    if (input != '\0')
+ 
+{
+   //checks if it is a valid char
+   // if(keystate[1]=='5'){
+    // if(keystate[2]!='0'){
       if (columns < 63) {  //check condition that the row has space
         msg[the_rows-22][columns] = input;             // store typed character
         fbputchar(input, the_rows, columns);           // display on screen
         fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
         columns++;
-      } 
+//	}
+//	}
+      }
+if(keystate[1]=='5' && keystate[2]=='0')
+{
+return '\0';
+}
       //checks if the row is full (enables text wrapping) -> move to next row in this case
       else if ((columns == 63) & (the_rows == 22)) { 
         msg[0][63] = input;                       // Store the last character in row 22
@@ -337,17 +330,16 @@ if (packet.keycode[0] == 0x4F) {
         fbputchar('_', 23, 0);                    // Move cursor to row 23
         columns = 0;
         the_rows = 23;
-      }
+      } 
     }
     fbputchar(key_input(keystate), 0, 54);
-  }
+
 
 	    
 
 
     }
   }
-
 
   /* Terminate the network thread */
   pthread_cancel(network_thread);
