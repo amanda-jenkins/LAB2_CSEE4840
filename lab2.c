@@ -21,6 +21,8 @@
 #define SERVER_HOST "128.59.19.114"
 #define SERVER_PORT 42000
 
+
+
 #define BUFFER_SIZE 128
 
 /*
@@ -95,12 +97,14 @@ memset(display[19],' ',64);
 
 //Sends the message to the chat server over a TCP socket.
 void server_send(char *sent_msg) {
-  int data;
-  if (data = write(sockfd, sent_msg, BUFFER_SIZE - 1) > 0) {
-  //error message for if sent
-  printf("SENT: %s", sent_msg);
-  }
+    if (write(sockfd, sent_msg, strlen(sent_msg)) > 0) {
+        printf("SENT: %s\n", sent_msg);
+    } else {
+        perror("Error sending message to server");
+    }
 }
+
+
 
 int main()
 {
@@ -216,13 +220,15 @@ fbputchar('*',20,col);
       /*
       * To handle the keyboard input; can also write this in a seperate function
       */
-      if (packet.keycode[0] == 0x28) { //Enter     
-	 int rows, cols;
-//	memset(displ;
+      if (packet.keycode[0] == 0x28) { //Enter is PRESSED    
+	      int rows, cols;
+       //	memset(displ;
       
         fbdisplay(msg);
+        server_send(msg[0]); 
+        server_send(msg[1]);
 
-	memset(display[19],' ',64);
+	      memset(display[19],' ',64);
   //       clear();
   //       fbdisplay(msg);
 
@@ -340,7 +346,6 @@ return '\0';
 
     }
   }
-
   /* Terminate the network thread */
   pthread_cancel(network_thread);
 
@@ -356,11 +361,41 @@ void *network_thread_f(void *ignored)
   char recvBuf[BUFFER_SIZE];
   int data;
   /* Receive data */
-  while ( (data = read(sockfd, &recvBuf, BUFFER_SIZE - 1)) > 0 ) {
-    recvBuf[data] = '\0';
-    printf("%s", recvBuf);
-    fbputs(recvBuf, 8, 0);
+  while ((data = read(sockfd, recvBuf, BUFFER_SIZE - 1)) > 0) {
+    recvBuf[data] = '\0';  // Null-terminate the received message
+    printf("%s\n", recvBuf); // Print received message for debugging
+    
+    // Shift old messages up to make room for new ones
+    int r, c;
+    for (r = 0; r < 18; r++) {
+        for (c = 0; c < 64; c++) {
+            display[r][c] = display[r + 2][c];
+        }
+    }
+
+    // Clear the last two rows
+    memset(display[18], ' ', 64);
+    memset(display[19], ' ', 64);
+
+    // Copy new message into the last two rows
+    strncpy(display[18], recvBuf, 64);
+
+    // Redraw framebuffer with new messages
+    for (r = 0; r < 20; r++) {
+        for (c = 0; c < 64; c++) {
+            fbputchar(display[r][c], r + 1, c);
+        }
+    }
+}
+
+if (data == 0) {
+    printf("## Server disconnected\n");
+  } else {
+      perror("## Error reading from server");
   }
+
+return NULL;
+}
 
   // FOR CLIENT SERVER SEDNING MESSAGES!!
 
@@ -371,6 +406,6 @@ void *network_thread_f(void *ignored)
   
   //fbdisplay(printBuf);
 
-  return NULL;
-}
+//   return NULL;
+// }
 
