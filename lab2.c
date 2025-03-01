@@ -329,15 +329,15 @@ if (packet.keycode[0] == 0x4F) {
       } else if (key_pressed && input == last_key) { // Key is being held
         long elapsed_time = (current_time - key_press_time) * 1000 / CLOCKS_PER_SEC;
         if (elapsed_time >= repeat_delay) { // Key held for more than 1 second
-            long repeat_time = elapsed_time - repeat_delay;
-            if (repeat_time % repeat_interval == 0) { // Repeat at intervals
+            // long repeat_time = elapsed_time - repeat_delay;
+            // if (repeat_time % repeat_interval == 0) { // Repeat at intervals
                 if (columns < 63) {
                     msg[the_rows - 22][columns] = input;
                     fbputchar(input, the_rows, columns);
                     fbputchar('_', the_rows, columns + 1);
                     columns++;
                 }
-            }
+            
         }
       }
       else { // Key is released
@@ -459,5 +459,4 @@ void *network_thread_f(void *ignored)
 
   return NULL;
 }
-
 
