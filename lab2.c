@@ -367,15 +367,15 @@ void *network_thread_f(void *ignored)
     
     // Shift old messages up to make room for new ones
     int r, c;
-    // for (r = 0; r < 18; r++) {
-    //     for (c = 0; c < 64; c++) {
-    //         display[r][c] = display[r + 2][c];
-    //     }
-    // }
+    for (r = 0; r < 18; r++) {
+        for (c = 0; c < 64; c++) {
+            display[r][c] = display[r + 2][c];
+        }
+    }
 
     // // Clear the last two rows
-    // memset(display[18], ' ', 64);
-    // memset(display[19], ' ', 64);
+    memset(display[18], ' ', 64);
+    memset(display[19], ' ', 64);
 
     // // Copy new message into the last two rows
     strncpy(display[18], recvBuf, 64);
