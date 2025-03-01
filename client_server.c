@@ -8,7 +8,7 @@
 #include <fcntl.h>
 
 #define PORT 42000
-#define HOST "128.59.64.121"
+#define HOST "128.59.65.35"
 #define RECV_BUFFER 4096
 #define MAX_CLIENTS 10
 
