@@ -306,7 +306,7 @@ if (packet.keycode[0] == 0x4F) {
     // this converts keycode to ASCII & store in message buffer
 
     clock_t key_press_start = 0;
-    char last_pressed_key = '\0';
+    char last_pressed_key = '0x55';
     char input = key_input(keystate);
 
     if (input != '\0') {
@@ -315,6 +315,7 @@ if (packet.keycode[0] == 0x4F) {
         // If the key is being held, check duration
         double elapsed_time = (double)(now - key_press_start) / CLOCKS_PER_SEC;
         if (elapsed_time < 2.0) {
+            printf("chec")
             return; // Ignore input if it's before 1 second
         }
         else {
