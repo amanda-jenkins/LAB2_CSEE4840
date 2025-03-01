@@ -305,20 +305,44 @@ if (packet.keycode[0] == 0x4F) {
     }
     // this converts keycode to ASCII & store in message buffer
     char input = key_input(keystate);
-    if (input != '\0')
- 
-{
+    if (input != '\0') {
    //checks if it is a valid char
    // if(keystate[1]=='5'){
     // if(keystate[2]!='0'){
       if (columns < 63) {  //check condition that the row has space
-        msg[the_rows-22][columns] = input;             // store typed character
-        fbputchar(input, the_rows, columns);           // display on screen
-        fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
-        columns++;
+        //msg[the_rows-22][columns] = input;             // store typed character
+        //fbputchar(input, the_rows, columns);           // display on screen
+        //fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
+        //columns++;
+        char input = key_input(keystate);  // Get ASCII character
+        int time_held = 0;  // Track how long the key has been held
+
+        while (input != '\0') {
+          char prev_char = msg[the_rows - 22][columns];  // Store previous character
+          msg[the_rows - 22][columns] = input;  // Store new character
+          fbputchar(input, the_rows, columns);  // Display new character
+          fbputchar('_', the_rows, columns + 1);  // Move cursor forward
+          columns++;
+
+          usleep(100000);  // Delay (100ms) to control repeat speed
+          time_held += 100;  // Increment held time (in ms)
+
+
+        // Check if the key is still held down, break if released
+        char next_input = key_input(keystate);
+        if (next_input == '\0') {
+            break;
+        }
+
+        // If key is held for 3 seconds (3000ms), break out
+        if (time_held >= 3000) {
+            break;
+        }
 //	}
 //	}
       }
+      }
+    }
 if(keystate[1]=='5' && keystate[2]=='0')
 {
 return '\0';
