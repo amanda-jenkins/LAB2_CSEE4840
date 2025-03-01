@@ -117,8 +117,8 @@ int main()
   char last_key = '\0';
   clock_t key_press_time = 0;
   clock_t current_time = 0;
-  const long repeat_delay = 1000; // 1 second delay before repeating
-  const long repeat_interval = 2000; // Repeat every 100ms
+  const long repeat_delay = 2000; // 1 second delay before repeating
+  const long repeat_interval = 200; // Repeat every 100ms
 
   //20 lines; 64 char buffer, we can change the buffer size
   char msg[2][64];
