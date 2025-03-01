@@ -226,7 +226,7 @@ fbputchar('*',20,col);
       
         fbdisplay(msg);
         server_send(msg[0]); 
-        server_send(msg[1]);
+        //server_send(msg[1]);
 
 	      memset(display[19],' ',64);
   //       clear();
