@@ -239,8 +239,10 @@ fbputchar('*',20,col);
             last_key = '\0';
             press_time = 0;
         }
-    }
-}
+  //  }
+//}
+//}
+
   //   if (transferred == sizeof(packet)) {
   //     sprintf(keystate, "%02x %02x %02x", packet.modifiers, packet.keycode[0],
 	//       packet.keycode[1]);
