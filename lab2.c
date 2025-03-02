@@ -367,47 +367,47 @@ void server_send(char *sent_msg) {
   }
 }
 
-//should run concurrently with the main program
-void *network_thread_f(void *ignored)
-{
-  char recvBuf[BUFFER_SIZE];
-  int data;
-  /* Receive data */
-  while ((data = read(sockfd, recvBuf, BUFFER_SIZE - 1)) > 0) {
-    recvBuf[data] = '\0';  // Null-terminate the received message
-    printf("%s\n", recvBuf); // Print received message for debugging
+// //should run concurrently with the main program
+// void *network_thread_f(void *ignored)
+// {
+//   char recvBuf[BUFFER_SIZE];
+//   int data;
+//   /* Receive data */
+//   while ((data = read(sockfd, recvBuf, BUFFER_SIZE - 1)) > 0) {
+//     recvBuf[data] = '\0';  // Null-terminate the received message
+//     printf("%s\n", recvBuf); // Print received message for debugging
     
-    // memset(display, ' ', sizeof(display));
+//     // memset(display, ' ', sizeof(display));
 
-    // Shift old messages up to make room for new ones
-    int r, c;
-    for (r = 0; r < 18; r++) {
-        for (c = 0; c < 64; c++) {
-            display[r][c] = display[r + 2][c];
-        }
-    }
+//     // Shift old messages up to make room for new ones
+//     int r, c;
+//     for (r = 0; r < 18; r++) {
+//         for (c = 0; c < 64; c++) {
+//             display[r][c] = display[r + 2][c];
+//         }
+//     }
 
-    //memset(display[18], ' ', 64);
-    // Copy new message into the last two rows
-    strncpy(display[18], recvBuf, 64);
+//     //memset(display[18], ' ', 64);
+//     // Copy new message into the last two rows
+//     strncpy(display[18], recvBuf, 64);
 
-    // Redraw framebuffer with new messages
-    for (r = 0; r < 20; r++) {
-        for (c = 0; c < 64; c++) {
-            fbputchar(display[r][c], r + 1, c);
-        }
+//     // Redraw framebuffer with new messages
+//     for (r = 0; r < 20; r++) {
+//         for (c = 0; c < 64; c++) {
+//             fbputchar(display[r][c], r + 1, c);
+//         }
     
-}
-}
+// }
+// }
 
-if (data == 0) {
-    printf("## Server disconnected\n");
-  } else {
-      perror("## Error reading from server");
-  }
+// if (data == 0) {
+//     printf("## Server disconnected\n");
+//   } else {
+//       perror("## Error reading from server");
+//   }
 
-return NULL;
-}
+// return NULL;
+// }
 
   // FOR CLIENT SERVER SEDNING MESSAGES!!
 
