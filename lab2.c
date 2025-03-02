@@ -374,8 +374,8 @@ void *network_thread_f(void *ignored)
     }
 
     // // Clear the last two rows
-    memset(display[18], ' ', 64);
-    memset(display[19], ' ', 64);
+    memset(display, ' ', sizeof(display));
+  
 
     // // Copy new message into the last two rows
     strncpy(display[18], recvBuf, 64);
