@@ -227,7 +227,7 @@ fbputchar('*',20,col);
       if (packet.keycode[0] == 0x29) { /* ESC pressed? */
 	break;
       }
-      char input = key_input(keystate);
+      //char input = key_input(keystate);
 
         if (input != '\0') {
             if (input != last_key) {  // First key press detected
