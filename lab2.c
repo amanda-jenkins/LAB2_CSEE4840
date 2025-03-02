@@ -467,6 +467,11 @@ void *network_thread_f(void *ignored)
   char **print_sent = malloc(sizeof(char)*64*21);
   int n;
 
+   // Shift old messages up to make room for new ones
+   for (int i = 0; i < 18; i++) {
+    strncpy(display[i], display[i + 2], 64);
+}
+
   /* Receive data */
   while ( (n = read(sockfd, &recvBuf, BUFFER_SIZE - 1)) > 0 ) {
     recvBuf[n] = '\0';
@@ -476,6 +481,9 @@ void *network_thread_f(void *ignored)
   
   strncpy(print_sent[0], recvBuf, BUFFER_SIZE/2);
   strncpy(print_sent[1], recvBuf, BUFFER_SIZE/2);
+
+  //strncpy(display[18], print_sent[0], 64);
+  //strncpy(display[19], print_sent[1], 64);
   
   printf("%s\n", recvBuf); 
   fbdisplay(print_sent);
