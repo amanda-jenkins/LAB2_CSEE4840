@@ -358,7 +358,7 @@ if (packet.keycode[0] == 0x4F) {
       cursor_place = 1;
     }
     // this converts keycode to ASCII & store in message buffer
-    char input = key_input(keystate);
+    input = key_input(keystate);
     if (input != '\0')
  
 {
