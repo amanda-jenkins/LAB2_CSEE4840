@@ -262,8 +262,8 @@ fbputchar('*',20,col);
             last_key = '\0';
             key_held = 0;
         }
-    }
-}
+    //}
+//}
       /*
       * To handle the keyboard input; can also write this in a seperate function
       */
