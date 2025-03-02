@@ -424,7 +424,7 @@ void server_send(char *sent_msg) {
 void *network_thread_f(void *ignored)
 {
   char recvBuf[BUFFER_SIZE];
-  recvBuf[data] = '\0';  // Null-terminate the received message
+  //recvBuf[data] = '\0';  // Null-terminate the received message
   printf("%s\n", recvBuf); // Print received message for debugging
   char **print_sent = malloc(sizeof(char)*64*21);
   int n;
