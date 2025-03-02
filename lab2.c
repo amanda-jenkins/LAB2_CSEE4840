@@ -96,14 +96,7 @@ void fbdisplay(char message[2][64]) {
 }
 }
 
-//Sends the message to the chat server over a TCP socket.
-void server_send(char *sent_msg) {
-    if (write(sockfd, sent_msg, strlen(sent_msg)) > 0) {
-        printf("SENT: %s\n", sent_msg);
-    } else {
-        perror("Error sending message to server");
-    }
-}
+
 
 
 
@@ -357,6 +350,23 @@ return '\0';
   return 0;
 }
 
+// //Sends the message to the chat server over a TCP socket.
+// void server_send(char *sent_msg) {
+//   if (write(sockfd, sent_msg, strlen(sent_msg)) > 0) {
+//       printf("SENT: %s\n", sent_msg);
+//   } else {
+//       perror("Error sending message to server");
+//   }
+// }
+
+void server_send(char *sent_msg) {
+  int n;
+  if (n = write(sockfd, sent_msg, BUFFER_SIZE - 1) > 0) 
+  {
+    printf("Sent message here: %s", buf);
+  }
+}
+
 //should run concurrently with the main program
 void *network_thread_f(void *ignored)
 {
@@ -388,7 +398,7 @@ void *network_thread_f(void *ignored)
         }
     
 }
-  }
+}
 
 if (data == 0) {
     printf("## Server disconnected\n");
@@ -410,3 +420,24 @@ return NULL;
 
 //   return NULL;
 // }
+
+void *network_thread_f(void *ignored)
+{
+  char recvBuf[BUFFER_SIZE];
+  char **printBuf = malloc(sizeof(char)*64*21);
+  int n;
+
+  /* Receive data */
+  while ( (n = read(sockfd, &recvBuf, BUFFER_SIZE - 1)) > 0 ) {
+    recvBuf[n] = '\0';
+    printf("%s", recvBuf);
+    fbputs(recvBuf, 8, 0);
+  }
+  
+  strncpy(printBuf[0], recvBuf, BUFFER_SIZE/2);
+  strncpy(printBuf[2], recvBuf, BUFFER_SIZE/2);
+  
+  fbdisplay(printBuf);
+
+  return NULL;
+}
