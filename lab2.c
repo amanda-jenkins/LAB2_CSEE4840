@@ -59,6 +59,7 @@ int col_idx = 0;
 */ 
 char display[20][64];
 
+
 /*
 * Func for the display of chat messages on the screen.
 * Upward scrolling to making room for new messages at the bottom of the screen.
@@ -224,7 +225,7 @@ fbputchar('*',20,col);
 	      int rows, cols;
 
         //memset(display, ' ', sizeof(display));
-        memset(display[18],' ',64);
+        memset(display[17],' ',64);
         fbdisplay(msg);
         server_send(msg[0]); 
         //server_send(msg[1]);
