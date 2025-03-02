@@ -439,6 +439,7 @@ void *network_thread_f(void *ignored)
   strncpy(print_sent[0], recvBuf, BUFFER_SIZE/2);
   strncpy(print_sent[1], recvBuf, BUFFER_SIZE/2);
   
+  printf("%s\n", recvBuf); 
   fbdisplay(print_sent);
 
   return NULL;
