@@ -212,7 +212,7 @@ fbputchar('*',20,col);
     if (transferred == sizeof(packet)) {
       sprintf(keystate, "%02x %02x %02x", packet.modifiers, packet.keycode[0],
 	      packet.keycode[1]);
-      //printf("%s\n", keystate);
+      printf("%s\n", keystate);
       fbputs(keystate, 6, 0);
       if (packet.keycode[0] == 0x29) { /* ESC pressed? */
 	break;
@@ -222,7 +222,6 @@ fbputchar('*',20,col);
       */
       if (packet.keycode[0] == 0x28) { //Enter is PRESSED    
 	      int rows, cols;
-       //	memset(displ;
       
         fbdisplay(msg);
         server_send(msg[0]); 
@@ -363,6 +362,12 @@ void *network_thread_f(void *ignored)
   /* Receive data */
   while ((data = read(sockfd, recvBuf, BUFFER_SIZE - 1)) > 0) {
     recvBuf[data] = '\0';  // Null-terminate the received message
+    //Filter out non-printable characters */
+        for (int i = 0; i < data; i++) {
+            if (recvBuf[i] < 32 || recvBuf[i] > 126) {
+                recvBuf[i] = ' ';  // Replace invalid characters with spaces
+            }
+        }
     printf("%s\n", recvBuf); // Print received message for debugging
     
     // Shift old messages up to make room for new ones
@@ -377,7 +382,7 @@ void *network_thread_f(void *ignored)
     memset(display[18], ' ', 64);
     memset(display[19], ' ', 64);
 
-    // // Copy new message into the last two rows
+    // Copy new message into the last two rows
     strncpy(display[18], recvBuf, 64);
 
     // Redraw framebuffer with new messages
