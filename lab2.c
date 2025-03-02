@@ -363,7 +363,7 @@ void server_send(char *sent_msg) {
   int n;
   if (n = write(sockfd, sent_msg, BUFFER_SIZE - 1) > 0) 
   {
-    printf("Sent message here: %s", buf);
+    printf("Sent message here: %s", sent_msg);
   }
 }
 
