@@ -311,23 +311,22 @@ if (packet.keycode[0] == 0x4F) {
       columns = 0;
       cursor_place = 1;
     }
-    //char prev_key = '\0'; 
-
     // this converts keycode to ASCII & store in message buffer
     char input = key_input(keystate);
-    if (input != '\0') {
+    if (input != '\0')
+ 
+{
+   //checks if it is a valid char
+   // if(keystate[1]=='5'){
+    // if(keystate[2]!='0'){
       if (columns < 63) {  //check condition that the row has space
         msg[the_rows-22][columns] = input;             // store typed character
         fbputchar(input, the_rows, columns);           // display on screen
-        fbputchar('_', the_rows, columns + 1);         // move the cursor forward by 1
+        fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
         columns++;
-        // char input = prev_key;
-        // if(input == prev_key) {
-        //   input == prev
-        // }
+//	}
+//	}
       }
-
-  
 if(keystate[1]=='5' && keystate[2]=='0')
 {
 return '\0';
@@ -342,6 +341,11 @@ return '\0';
       } 
     }
     fbputchar(key_input(keystate), 0, 54);
+
+
+	    
+
+
     }
   }
   /* Terminate the network thread */
@@ -358,22 +362,12 @@ void *network_thread_f(void *ignored)
 {
   char recvBuf[BUFFER_SIZE];
   int data;
-
   /* Receive data */
   while ((data = read(sockfd, recvBuf, BUFFER_SIZE - 1)) > 0) {
     recvBuf[data] = '\0';  // Null-terminate the received message
     printf("%s\n", recvBuf); // Print received message for debugging
-
-    for (int i = 0; i < data; i++) {
-      if (recvBuf[i] < 32 || recvBuf[i] > 126) { // Non-printable ASCII
-          recvBuf[i] = ' ';  // Replace with a space
-      }
-  }
     
     // memset(display, ' ', sizeof(display));
-    // Clear previous display buffer
-     memset(display[18], ' ', 64);
-     memset(display[19], ' ', 64);
 
     // Shift old messages up to make room for new ones
     int r, c;
@@ -382,12 +376,11 @@ void *network_thread_f(void *ignored)
             display[r][c] = display[r + 2][c];
         }
     }
+
     //memset(display[18], ' ', 64);
     // Copy new message into the last two rows
     strncpy(display[18], recvBuf, 64);
 
-
-    display[18][63] = '\0'; // Ensure null termination
     // Redraw framebuffer with new messages
     for (r = 0; r < 20; r++) {
         for (c = 0; c < 64; c++) {
