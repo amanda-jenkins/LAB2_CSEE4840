@@ -222,7 +222,9 @@ fbputchar('*',20,col);
       */
       if (packet.keycode[0] == 0x28) { //Enter is PRESSED    
 	      int rows, cols;
-        memset(display, ' ', sizeof(display));
+
+        //memset(display, ' ', sizeof(display));
+        memset(display[19],' ',64);
         fbdisplay(msg);
         server_send(msg[0]); 
         //server_send(msg[1]);
