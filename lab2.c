@@ -354,64 +354,24 @@ return '\0';
   return 0;
 }
 
-//should run concurrently with the main program
 void *network_thread_f(void *ignored)
 {
   char recvBuf[BUFFER_SIZE];
-  int data;
+  char **printBuf = malloc(sizeof(char)*64*21);
+  int n;
+
   /* Receive data */
-  while ((data = read(sockfd, recvBuf, BUFFER_SIZE - 1)) > 0) {
-    recvBuf[data] = '\0';  // Null-terminate the received message
-    //Filter out non-printable characters */
-        for (int i = 0; i < data; i++) {
-            if (recvBuf[i] < 32 || recvBuf[i] > 126) {
-                recvBuf[i] = ' ';  // Replace invalid characters with spaces
-            }
-        }
-    printf("%s\n", recvBuf); // Print received message for debugging
-    
-    // Shift old messages up to make room for new ones
-    int r, c;
-    for (r = 0; r < 18; r++) {
-        for (c = 0; c < 64; c++) {
-            display[r][c] = display[r + 2][c];
-        }
-    }
-
-    // // Clear the last two rows
-    memset(display[18], ' ', 64);
-    memset(display[19], ' ', 64);
-
-    // Copy new message into the last two rows
-    strncpy(display[18], recvBuf, 64);
-
-    // Redraw framebuffer with new messages
-    for (r = 0; r < 20; r++) {
-        for (c = 0; c < 64; c++) {
-            fbputchar(display[r][c], r + 1, c);
-        }
-    
-}
+  while ( (n = read(sockfd, &recvBuf, BUFFER_SIZE - 1)) > 0 ) {
+    recvBuf[n] = '\0';
+    printf("%s", recvBuf);
+    fbputs(recvBuf, 8, 0);
   }
-
-if (data == 0) {
-    printf("## Server disconnected\n");
-  } else {
-      perror("## Error reading from server");
-  }
-
-return NULL;
-}
-
-  // FOR CLIENT SERVER SEDNING MESSAGES!!
-
-
-  // messages recieved from the chat server to display them 
-  //strncpy(printBuf[0], recvBuf, BUFFER_SIZE/2);
-  //strncpy(printBuf[2], recvBuf, BUFFER_SIZE/2);
   
-  //fbdisplay(printBuf);
+  strncpy(printBuf[0], recvBuf, BUFFER_SIZE/2);
+  strncpy(printBuf[2], recvBuf, BUFFER_SIZE/2);
+  
+  fbprint(printBuf);
 
-//   return NULL;
-// }
+  return NULL;
+}
 
