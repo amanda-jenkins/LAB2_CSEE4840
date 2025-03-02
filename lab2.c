@@ -425,14 +425,14 @@ void *network_thread_f(void *ignored)
 {
   char recvBuf[BUFFER_SIZE];
   //recvBuf[data] = '\0';  // Null-terminate the received message
-  printf("%s\n", recvBuf); // Print received message for debugging
+  
   char **print_sent = malloc(sizeof(char)*64*21);
   int n;
 
   /* Receive data */
   while ( (n = read(sockfd, &recvBuf, BUFFER_SIZE - 1)) > 0 ) {
     recvBuf[n] = '\0';
-    printf("%s", recvBuf);
+    printf("%s\n", recvBuf); 
     fbputs(recvBuf, 8, 0);
   }
   
