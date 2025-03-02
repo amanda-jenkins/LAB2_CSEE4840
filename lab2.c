@@ -378,9 +378,7 @@ void *network_thread_f(void *ignored)
     
     //memset(display[18], ' ', 64);
     // Copy new message into the last two rows
-    strncpy(display[18], recvBuf, 64);
-
-
+    //strncpy(display[18], recvBuf, 64);
     display[18][63] = '\0'; // Ensure null termination
 
     // Shift old messages up to make room for new ones
