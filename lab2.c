@@ -526,7 +526,7 @@ void *network_thread_f(void *ignored) {
 
       // Format received message with sender's IP
       snprintf(display[18], 64, "[%s] %s", sender_ip, recvBuf);
-      snprintf(display[19], 64, "[%s] %s", sender_ip, recvBuf);
+      //snprintf(display[19], 64, "[%s] %s", sender_ip, recvBuf);
 
       // Update framebuffer
       fbdisplay();
