@@ -96,7 +96,14 @@ void fbdisplay(char message[2][64]) {
 }
 }
 
-
+//Sends the message to the chat server over a TCP socket.
+void server_send(char *sent_msg) {
+    if (write(sockfd, sent_msg, strlen(sent_msg)) > 0) {
+        printf("SENT: %s\n", sent_msg);
+    } else {
+        perror("Error sending message to server");
+    }
+}
 
 
 
@@ -203,52 +210,14 @@ fbputchar('*',20,col);
     libusb_interrupt_transfer(keyboard, endpoint_address,
 			      (unsigned char *) &packet, sizeof(packet),
 			      &transferred, 0);
-                if (transferred == sizeof(packet)) {  
-        char input = key_input(keystate);
-        printf("Key Pressed -> %c () %d)\n", input, input);  // Debugging
-
-        if (input == last_key) {  // Key still held
-            clock_t elapsed = (clock() - press_time) * 1000 / CLOCKS_PER_SEC;
-            printf("Key  held for ms\n", input, elapsed);  // Debugging hold time
-
-            if (elapsed >= long_press_delay && (elapsed % repeat_interval == 0)) {  
-                printf(" Long press detected");  // Debugging repeat
-                if (columns < 63) {
-                    msg[the_rows-22][columns] = input;
-                    fbputchar(input, the_rows, columns);
-                    fbputchar('_', the_rows, columns + 1);
-                    columns++;
-                }
-            }
-            } else {  
-            // First key press
-            last_key = input;
-            press_time = clock();
-            printf(" First press of key %c, tracking time...\n", input);  // Debugging first key press
-
-            if (columns < 63) {
-                msg[the_rows-22][columns] = input;
-                fbputchar(input, the_rows, columns);
-                fbputchar('_', the_rows, columns + 1);
-                columns++;
-            }
-        }
-
-        if (packet.keycode[0] == 0x00) {  // Key released
-            printf("Key %c released, resetting state...\n", last_key);  // Debugging key release
-            last_key = '\0';
-            press_time = 0;
-        }
-    }
-}
-  //   if (transferred == sizeof(packet)) {
-  //     sprintf(keystate, "%02x %02x %02x", packet.modifiers, packet.keycode[0],
-	//       packet.keycode[1]);
-  //     printf("%s\n", keystate);
-  //     fbputs(keystate, 6, 0);
-  //     if (packet.keycode[0] == 0x29) { /* ESC pressed? */
-	// break;
-  //     }
+    if (transferred == sizeof(packet)) {
+      sprintf(keystate, "%02x %02x %02x", packet.modifiers, packet.keycode[0],
+	      packet.keycode[1]);
+      printf("%s\n", keystate);
+      fbputs(keystate, 6, 0);
+      if (packet.keycode[0] == 0x29) { /* ESC pressed? */
+	break;
+      }
       /*
       * To handle the keyboard input; can also write this in a seperate function
       */
@@ -388,64 +357,47 @@ return '\0';
   return 0;
 }
 
-// //Sends the message to the chat server over a TCP socket.
-// void server_send(char *sent_msg) {
-//   if (write(sockfd, sent_msg, strlen(sent_msg)) > 0) {
-//       printf("SENT: %s\n", sent_msg);
-//   } else {
-//       perror("Error sending message to server");
-//   }
-// }
+//should run concurrently with the main program
+void *network_thread_f(void *ignored)
+{
+  char recvBuf[BUFFER_SIZE];
+  int data;
+  /* Receive data */
+  while ((data = read(sockfd, recvBuf, BUFFER_SIZE - 1)) > 0) {
+    recvBuf[data] = '\0';  // Null-terminate the received message
+    printf("%s\n", recvBuf); // Print received message for debugging
+    
+    // memset(display, ' ', sizeof(display));
 
-void server_send(char *sent_msg) {
-  int n;
-  if (n = write(sockfd, sent_msg, BUFFER_SIZE - 1) > 0) 
-  {
-    printf("Sent message here: %s", sent_msg);
-  }
+    // Shift old messages up to make room for new ones
+    int r, c;
+    for (r = 0; r < 18; r++) {
+        for (c = 0; c < 64; c++) {
+            display[r][c] = display[r + 2][c];
+        }
+    }
+
+    //memset(display[18], ' ', 64);
+    // Copy new message into the last two rows
+    strncpy(display[18], recvBuf, 64);
+
+    // Redraw framebuffer with new messages
+    for (r = 0; r < 20; r++) {
+        for (c = 0; c < 64; c++) {
+            fbputchar(display[r][c], r + 1, c);
+        }
+    
 }
+  }
 
-// //should run concurrently with the main program
-// void *network_thread_f(void *ignored)
-// {
-//   char recvBuf[BUFFER_SIZE];
-//   int data;
-//   /* Receive data */
-//   while ((data = read(sockfd, recvBuf, BUFFER_SIZE - 1)) > 0) {
-//     recvBuf[data] = '\0';  // Null-terminate the received message
-//     printf("%s\n", recvBuf); // Print received message for debugging
-    
-//     // memset(display, ' ', sizeof(display));
+if (data == 0) {
+    printf("## Server disconnected\n");
+  } else {
+      perror("## Error reading from server");
+  }
 
-//     // Shift old messages up to make room for new ones
-//     int r, c;
-//     for (r = 0; r < 18; r++) {
-//         for (c = 0; c < 64; c++) {
-//             display[r][c] = display[r + 2][c];
-//         }
-//     }
-
-//     //memset(display[18], ' ', 64);
-//     // Copy new message into the last two rows
-//     strncpy(display[18], recvBuf, 64);
-
-//     // Redraw framebuffer with new messages
-//     for (r = 0; r < 20; r++) {
-//         for (c = 0; c < 64; c++) {
-//             fbputchar(display[r][c], r + 1, c);
-//         }
-    
-// }
-// }
-
-// if (data == 0) {
-//     printf("## Server disconnected\n");
-//   } else {
-//       perror("## Error reading from server");
-//   }
-
-// return NULL;
-// }
+return NULL;
+}
 
   // FOR CLIENT SERVER SEDNING MESSAGES!!
 
@@ -458,35 +410,3 @@ void server_send(char *sent_msg) {
 
 //   return NULL;
 // }
-
-void *network_thread_f(void *ignored)
-{
-  char recvBuf[BUFFER_SIZE];
-  //recvBuf[data] = '\0';  // Null-terminate the received message
-  
-  char **print_sent = malloc(sizeof(char)*64*21);
-  int n;
-
-   // Shift old messages up to make room for new ones
-   for (int i = 0; i < 18; i++) {
-    strncpy(display[i], display[i + 2], 64);
-}
-
-  /* Receive data */
-  while ( (n = read(sockfd, &recvBuf, BUFFER_SIZE - 1)) > 0 ) {
-    recvBuf[n] = '\0';
-    printf("%s\n", recvBuf); 
-    fbputs(recvBuf, 8, 0);
-  }
-  
-  strncpy(print_sent[0], recvBuf, BUFFER_SIZE/2);
-  strncpy(print_sent[1], recvBuf, BUFFER_SIZE/2);
-
-  //strncpy(display[18], print_sent[0], 64);
-  //strncpy(display[19], print_sent[1], 64);
-  
-  printf("%s\n", recvBuf); 
-  fbdisplay(print_sent);
-
-  return NULL;
-}
