@@ -146,8 +146,8 @@ int main()
  // memset(display[15], ' ', 64);
   memset(display[18], ' ', 64);
  // memset(display[17], ' ', 64);
-    memset(display[19], ' ', 64);
-//    memset(display[20], ' ', 64);
+  memset(display[19], ' ', 64);
+ // memset(display[20], ' ', 64);
 
 
 
@@ -222,8 +222,7 @@ fbputchar('*',20,col);
       */
       if (packet.keycode[0] == 0x28) { //Enter is PRESSED    
 	      int rows, cols;
-       //	memset(displ;
-      
+        memset(display, ' ', sizeof(display));
         fbdisplay(msg);
         server_send(msg[0]); 
         //server_send(msg[1]);
@@ -375,7 +374,7 @@ void *network_thread_f(void *ignored)
         }
     }
 
-    memset(display[18], ' ', 64);
+    //memset(display[18], ' ', 64);
     // Copy new message into the last two rows
     strncpy(display[18], recvBuf, 64);
 
