@@ -361,56 +361,50 @@ void *network_thread_f(void *ignored)
 
   /* Receive data */
   while ((data = read(sockfd, recvBuf, BUFFER_SIZE - 1)) > 0) {
-    memset(recvBuf, 0, BUFFER_SIZE);  // Ensure buffer is cleared before reading
     recvBuf[data] = '\0';  // Null-terminate the received message
+    printf("%s\n", recvBuf); // Print received message for debugging
 
-    // Debugging: Print received message as raw hex values
-    printf("RAW MESSAGE (Hex): ");
     for (int i = 0; i < data; i++) {
-        printf("%02X ", (unsigned char)recvBuf[i]);
-    }
-    printf("\n");
-
-    // Sanitize received data by replacing non-printable ASCII characters
-    for (int i = 0; i < data; i++) {
-      if (recvBuf[i] < 32 || recvBuf[i] > 126) {
-          recvBuf[i] = ' ';  // Replace non-printable characters with spaces
+      if (recvBuf[i] < 32 || recvBuf[i] > 126) { // Non-printable ASCII
+          recvBuf[i] = ' ';  // Replace with a space
       }
-    }
+  }
+    
+    // memset(display, ' ', sizeof(display));
+    // Clear previous display buffer
+     memset(display[18], ' ', 64);
+     memset(display[19], ' ', 64);
 
-    // Shift old messages up before writing new data
-    for (int r = 0; r < 18; r++) {
-        for (int c = 0; c < 64; c++) {
+    // Shift old messages up to make room for new ones
+    int r, c;
+    for (r = 0; r < 18; r++) {
+        for (c = 0; c < 64; c++) {
             display[r][c] = display[r + 2][c];
         }
     }
+    //memset(display[18], ' ', 64);
+    // Copy new message into the last two rows
+    strncpy(display[18], recvBuf, 64);
 
-    // Clear the last two rows before writing the new message
-    memset(display[18], ' ', 64);
-    memset(display[19], ' ', 64);
 
-    // Copy sanitized message into display buffer
-    strncpy(display[18], recvBuf, 63); // Copy only up to 63 chars to ensure null termination
-    display[18][63] = '\0';
-
-    // Redraw framebuffer with updated messages
-    for (int r = 0; r < 20; r++) {
-        for (int c = 0; c < 64; c++) {
+    display[18][63] = '\0'; // Ensure null termination
+    // Redraw framebuffer with new messages
+    for (r = 0; r < 20; r++) {
+        for (c = 0; c < 64; c++) {
             fbputchar(display[r][c], r + 1, c);
         }
-    }
+    
+}
   }
 
-  // Handle disconnection
-  if (data == 0) {
-      printf("## Server disconnected\n");
+if (data == 0) {
+    printf("## Server disconnected\n");
   } else {
       perror("## Error reading from server");
   }
 
-  return NULL;
+return NULL;
 }
-
 
   // FOR CLIENT SERVER SEDNING MESSAGES!!
 
