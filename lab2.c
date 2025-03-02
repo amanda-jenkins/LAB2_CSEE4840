@@ -424,7 +424,9 @@ void server_send(char *sent_msg) {
 void *network_thread_f(void *ignored)
 {
   char recvBuf[BUFFER_SIZE];
-  char **printBuf = malloc(sizeof(char)*64*21);
+  recvBuf[data] = '\0';  // Null-terminate the received message
+  printf("%s\n", recvBuf); // Print received message for debugging
+  char **print_sent = malloc(sizeof(char)*64*21);
   int n;
 
   /* Receive data */
@@ -434,10 +436,10 @@ void *network_thread_f(void *ignored)
     fbputs(recvBuf, 8, 0);
   }
   
-  strncpy(printBuf[0], recvBuf, BUFFER_SIZE/2);
-  strncpy(printBuf[2], recvBuf, BUFFER_SIZE/2);
+  strncpy(print_sent[0], recvBuf, BUFFER_SIZE/2);
+  strncpy(print_sent[2], recvBuf, BUFFER_SIZE/2);
   
-  fbdisplay(printBuf);
+  fbdisplay(print_sent);
 
   return NULL;
 }
