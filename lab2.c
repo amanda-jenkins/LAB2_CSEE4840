@@ -365,7 +365,7 @@ void *network_thread_f(void *ignored)
   /* Receive data */
   while ((data = read(sockfd, recvBuf, BUFFER_SIZE - 1)) > 0) {
     recvBuf[data] = '\0';  // Null-terminate the received message
-    printf("show something"); // Print received message for debugging
+    printf("%s\n", recvBuf); // Print received message for debugging
     
     // memset(display, ' ', sizeof(display));
 
