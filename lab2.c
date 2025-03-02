@@ -365,8 +365,8 @@ void *network_thread_f(void *ignored)
     recvBuf[data] = '\0';  // Null-terminate the received message
     printf("%s\n", recvBuf); // Print received message for debugging
     
-    memset(display, ' ', sizeof(display));
-    
+    // memset(display, ' ', sizeof(display));
+
     // Shift old messages up to make room for new ones
     int r, c;
     for (r = 0; r < 18; r++) {
@@ -374,9 +374,6 @@ void *network_thread_f(void *ignored)
             display[r][c] = display[r + 2][c];
         }
     }
-
-
-  
 
     // // Copy new message into the last two rows
     strncpy(display[18], recvBuf, 64);
