@@ -115,6 +115,14 @@ int main()
   struct usb_keyboard_packet packet;
   int transferred;
   char keystate[12];
+  #include <time.h>  // Required for tracking time
+
+// Variables for long press tracking
+char last_key = '\0';
+clock_t press_time = 0;
+const int long_press_delay = 500;  // Start repeating after 500ms
+const int repeat_interval = 100;   // Repeat every 100ms
+int key_held = 0;  // Track if a key is being held
 
   //20 lines; 64 char buffer, we can change the buffer size
   char msg[2][64];
