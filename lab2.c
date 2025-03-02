@@ -203,14 +203,52 @@ fbputchar('*',20,col);
     libusb_interrupt_transfer(keyboard, endpoint_address,
 			      (unsigned char *) &packet, sizeof(packet),
 			      &transferred, 0);
-    if (transferred == sizeof(packet)) {
-      sprintf(keystate, "%02x %02x %02x", packet.modifiers, packet.keycode[0],
-	      packet.keycode[1]);
-      printf("%s\n", keystate);
-      fbputs(keystate, 6, 0);
-      if (packet.keycode[0] == 0x29) { /* ESC pressed? */
-	break;
-      }
+                if (transferred == sizeof(packet)) {  
+        char input = key_input(keystate);
+        printf("Key Pressed -> %c () %d)\n", input, input);  // Debugging
+
+        if (input == last_key) {  // Key still held
+            clock_t elapsed = (clock() - press_time) * 1000 / CLOCKS_PER_SEC;
+            printf("Key  held for ms\n", input, elapsed);  // Debugging hold time
+
+            if (elapsed >= long_press_delay && (elapsed % repeat_interval == 0)) {  
+                printf(" Long press detected");  // Debugging repeat
+                if (columns < 63) {
+                    msg[the_rows-22][columns] = input;
+                    fbputchar(input, the_rows, columns);
+                    fbputchar('_', the_rows, columns + 1);
+                    columns++;
+                }
+            }
+            } else {  
+            // First key press
+            last_key = input;
+            press_time = clock();
+            printf(" First press of key %c, tracking time...\n", input);  // Debugging first key press
+
+            if (columns < 63) {
+                msg[the_rows-22][columns] = input;
+                fbputchar(input, the_rows, columns);
+                fbputchar('_', the_rows, columns + 1);
+                columns++;
+            }
+        }
+
+        if (packet.keycode[0] == 0x00) {  // Key released
+            printf("Key %c released, resetting state...\n", last_key);  // Debugging key release
+            last_key = '\0';
+            press_time = 0;
+        }
+    }
+}
+  //   if (transferred == sizeof(packet)) {
+  //     sprintf(keystate, "%02x %02x %02x", packet.modifiers, packet.keycode[0],
+	//       packet.keycode[1]);
+  //     printf("%s\n", keystate);
+  //     fbputs(keystate, 6, 0);
+  //     if (packet.keycode[0] == 0x29) { /* ESC pressed? */
+	// break;
+  //     }
       /*
       * To handle the keyboard input; can also write this in a seperate function
       */
