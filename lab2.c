@@ -375,6 +375,14 @@ void *network_thread_f(void *ignored)
      memset(display[18], ' ', 64);
      memset(display[19], ' ', 64);
 
+    
+    //memset(display[18], ' ', 64);
+    // Copy new message into the last two rows
+    strncpy(display[18], recvBuf, 64);
+
+
+    display[18][63] = '\0'; // Ensure null termination
+
     // Shift old messages up to make room for new ones
     int r, c;
     for (r = 0; r < 18; r++) {
@@ -382,12 +390,6 @@ void *network_thread_f(void *ignored)
             display[r][c] = display[r + 2][c];
         }
     }
-    //memset(display[18], ' ', 64);
-    // Copy new message into the last two rows
-    strncpy(display[18], recvBuf, 64);
-
-
-    display[18][63] = '\0'; // Ensure null termination
     // Redraw framebuffer with new messages
     for (r = 0; r < 20; r++) {
         for (c = 0; c < 64; c++) {
