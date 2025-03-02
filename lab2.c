@@ -370,7 +370,7 @@ void *network_thread_f(void *ignored)
   strncpy(printBuf[0], recvBuf, BUFFER_SIZE/2);
   strncpy(printBuf[2], recvBuf, BUFFER_SIZE/2);
   
-  fbprint(printBuf);
+  //fbprint(printBuf);
 
   return NULL;
 }
