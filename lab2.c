@@ -478,7 +478,8 @@ void *network_thread_f(void *ignored)
 {
   char recvBuf[BUFFER_SIZE];
   //recvBuf[data] = '\0';  // Null-terminate the received message
-  
+  struct sockaddr_in sender_addr;
+  socklen_t addr_len = sizeof(sender_addr);
   char **print_sent = malloc(sizeof(char)*64*21);
   int n;
 
