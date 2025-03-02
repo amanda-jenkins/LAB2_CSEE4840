@@ -96,14 +96,14 @@ void fbdisplay(char message[2][64]) {
 }
 }
 
-//Sends the message to the chat server over a TCP socket.
-void server_send(char *sent_msg) {
-    if (write(sockfd, sent_msg, strlen(sent_msg)) > 0) {
-        printf("SENT: %s\n", sent_msg);
-    } else {
-        perror("Error sending message to server");
-    }
-}
+// //Sends the message to the chat server over a TCP socket.
+// void server_send(char *sent_msg) {
+//     if (write(sockfd, sent_msg, strlen(sent_msg)) > 0) {
+//         printf("SENT: %s\n", sent_msg);
+//     } else {
+//         perror("Error sending message to server");
+//     }
+// }
 
 
 
