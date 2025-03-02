@@ -67,15 +67,15 @@ char display[20][64];
 */
 
 void fbdisplay(char message[2][64]) {
-  int rows, cols;
+ int rows, cols;
  int counter=1;
   for (rows = 0; rows < 18; rows++) {
     for (cols = 0; cols < 64; cols++) {
         display[rows][cols] = display[rows+2][cols];  // Move row (r+2) to row (r)
     }
   }
-memset(display[18],' ',64);
-memset(display[19],' ',64);
+    memset(display[18],' ',64);
+    memset(display[19],' ',64);
 
   for (rows = 18; rows < 20; rows++) {
     for (cols = 0; cols < 64; cols++) {
@@ -142,13 +142,13 @@ int main()
   //fbputs("Hello CSEE 4840 World!", 4, 10);
 
 
-  memset(display, ' ', sizeof(display));
- // memset(display[14], ' ', 64);
- // memset(display[15], ' ', 64);
-  memset(display[18], ' ', 64);
- // memset(display[17], ' ', 64);
-  memset(display[19], ' ', 64);
- // memset(display[20], ' ', 64);
+    memset(display, ' ', sizeof(display));
+  // memset(display[14], ' ', 64);
+  // memset(display[15], ' ', 64);
+    memset(display[18], ' ', 64);
+  // memset(display[17], ' ', 64);
+    memset(display[19], ' ', 64);
+  // memset(display[20], ' ', 64);
 
 
 
@@ -225,11 +225,11 @@ fbputchar('*',20,col);
 	      int rows, cols;
 
         //memset(display, ' ', sizeof(display));
-        memset(display[17],' ',64);
+        //memset(display[17],' ',64);
         fbdisplay(msg);
         server_send(msg[0]); 
         //server_send(msg[1]);
-
+        memset(msg, ' ', sizeof(msg));
 	      memset(display[19],' ',64);
   //       clear();
   //       fbdisplay(msg);
