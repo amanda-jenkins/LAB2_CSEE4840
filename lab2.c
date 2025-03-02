@@ -210,6 +210,7 @@ fbputchar('*',20,col);
     libusb_interrupt_transfer(keyboard, endpoint_address,
 			      (unsigned char *) &packet, sizeof(packet),
 			      &transferred, 0);
+    
     if (transferred == sizeof(packet)) {
       sprintf(keystate, "%02x %02x %02x", packet.modifiers, packet.keycode[0],
 	      packet.keycode[1]);
@@ -218,6 +219,43 @@ fbputchar('*',20,col);
       if (packet.keycode[0] == 0x29) { /* ESC pressed? */
 	break;
       }
+      char input = key_input(keystate);
+
+        if (input != '\0') {
+            if (input != last_key) {  // First key press detected
+                last_key = input;
+                press_time = clock();  // Start timing
+                key_held = 1;  // Mark key as held
+                printf("DEBUG: First press of key %c, tracking time...\n", input);  // Debugging
+
+                if (columns < 63) {  // Store and display the key
+                    msg[the_rows-22][columns] = input;
+                    fbputchar(input, the_rows, columns);
+                    fbputchar('_', the_rows, columns + 1);
+                    columns++;
+                }
+            } else {  // Key is still being held
+                clock_t elapsed_time = (clock() - press_time) * 1000 / CLOCKS_PER_SEC;
+
+                if (elapsed_time >= long_press_delay && (elapsed_time % repeat_interval == 0)) {
+                    printf("DEBUG: Long press detected: %c, repeating...\n", input);  // Debugging
+                    if (columns < 63) {
+                        msg[the_rows-22][columns] = input;
+                        fbputchar(input, the_rows, columns);
+                        fbputchar('_', the_rows, columns + 1);
+                        columns++;
+                    }
+                }
+            }
+        }
+
+        if (packet.keycode[0] == 0x00 && key_held) {  // Key released
+            printf("DEBUG: Key %c released, resetting state...\n", last_key);  // Debugging
+            last_key = '\0';
+            key_held = 0;
+        }
+    }
+}
       /*
       * To handle the keyboard input; can also write this in a seperate function
       */
