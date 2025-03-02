@@ -482,6 +482,11 @@ void *network_thread_f(void *ignored)
   char **print_sent = malloc(sizeof(char)*64*21);
   int n;
 
+   // Get the IP address of the sender (server)
+   getpeername(sockfd, (struct sockaddr *)&sender_addr, &addr_len);
+   char sender_ip[INET_ADDRSTRLEN]; // Buffer to store IP address
+   inet_ntop(AF_INET, &sender_addr.sin_addr, sender_ip, INET_ADDRSTRLEN);
+
    // Shift old messages up to make room for new ones
    for (int i = 0; i < 18; i++) {
     strncpy(display[i], display[i + 2], 64);
