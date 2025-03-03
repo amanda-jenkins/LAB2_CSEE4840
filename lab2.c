@@ -66,32 +66,35 @@ char display[20][64];
 * message[] is the buffer to store user's input before it is sent; may not need to be this large
 */
 
-/*
-* Func for the display of chat messages on the screen.
-* Upward scrolling to making room for new messages at the bottom of the screen.
-* message[] is the buffer to store user's input before it is sent; may not need to be this large
-*/
-
-void fbdisplay() {
-  int rows, cols;
-
-  // Scroll messages up to make space for new ones
+void fbdisplay(char message[2][64]) {
+ int rows, cols;
+ int counter=1;
   for (rows = 0; rows < 18; rows++) {
-      strncpy(display[rows], display[rows + 2], 64);
+    for (cols = 0; cols < 64; cols++) {
+        display[rows][cols] = display[rows+2][cols];  // Move row (r+2) to row (r)
+    }
+  }
+    memset(display[18],' ',64);
+    memset(display[19],' ',64);
+
+  for (rows = 18; rows < 20; rows++) {
+    for (cols = 0; cols < 64; cols++) {
+      display[rows][cols] = message[rows-18][cols]; // message[0] goes to row 18, message[1] to row 19
+    }
   }
 
-  // Clear the last two rows
-  memset(display[18], ' ', 64);
-  memset(display[19], ' ', 64);
-
-  // Redraw the entire framebuffer with updated messages
+  // redraws the entire display on the framebuffer
   for (rows = 0; rows < 20; rows++) {
-      for (cols = 0; cols < 64; cols++) {
-          fbputchar(display[rows][cols], rows + 1, cols);  // Print character by character
+      for (cols = 0; cols < 64; cols++){
+          fbputchar(display[rows][cols], rows+1, cols); // displays each character at updated row & column
       }
-  }
-}
+//if(counter=1){
 
+//memset(display[18],' ',64);
+//memset(display[19],' ',64);
+//counter++;  }
+}
+}
 
 // //Sends the message to the chat server over a TCP socket.
 // void server_send(char *sent_msg) {
@@ -475,15 +478,9 @@ void *network_thread_f(void *ignored)
 {
   char recvBuf[BUFFER_SIZE];
   //recvBuf[data] = '\0';  // Null-terminate the received message
-  struct sockaddr_in sender_addr;
-  socklen_t addr_len = sizeof(sender_addr);
+  
   char **print_sent = malloc(sizeof(char)*64*21);
   int n;
-
-   // Get the IP address of the sender (server)
-   getpeername(sockfd, (struct sockaddr *)&sender_addr, &addr_len);
-   char sender_ip[INET_ADDRSTRLEN]; // Buffer to store IP address
-   inet_ntop(AF_INET, &sender_addr.sin_addr, sender_ip, INET_ADDRSTRLEN);
 
    // Shift old messages up to make room for new ones
    for (int i = 0; i < 18; i++) {
@@ -500,9 +497,6 @@ void *network_thread_f(void *ignored)
   // strncpy(print_sent[0], recvBuf, BUFFER_SIZE/2);
   // strncpy(print_sent[1], recvBuf, BUFFER_SIZE/2);
 
-  snprintf(print_sent[0], 64, "[%s] %s", sender_ip, recvBuf);
-  snprintf(print_sent[1], 64, "[%s] %s", sender_ip, recvBuf);
-
   strncpy(display[18], print_sent[0], 64);
   strncpy(display[19], print_sent[1], 64);
   
@@ -510,33 +504,3 @@ void *network_thread_f(void *ignored)
 
   return NULL;
 }
-
-// void *network_thread_f(void *ignored) {
-//   char recvBuf[BUFFER_SIZE];
-//   struct sockaddr_in sender_addr;
-//   socklen_t addr_len = sizeof(sender_addr);
-//   int n;
-
-//   // Get sender's IP address
-//   getpeername(sockfd, (struct sockaddr *)&sender_addr, &addr_len);
-//   char sender_ip[INET_ADDRSTRLEN];
-//   inet_ntop(AF_INET, &sender_addr.sin_addr, sender_ip, INET_ADDRSTRLEN);
-
-//   while ((n = read(sockfd, recvBuf, BUFFER_SIZE - 1)) > 0) {
-//       recvBuf[n] = '\0';  // Ensure null termination
-
-//       // Scroll messages up in `display[]`
-//       for (int i = 0; i < 18; i++) {
-//           strncpy(display[i], display[i + 2], 64);
-//       }
-
-//       // Format received message with sender's IP
-//       //snprintf(display[18], 64, "[%s] %s", sender_ip, recvBuf);
-//       //snprintf(display[19], 64, "[%s] %s", sender_ip, recvBuf);
-
-//       // Update framebuffer
-//       fbdisplay();
-//   }
-
-//   return NULL;
-// }
