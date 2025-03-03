@@ -107,11 +107,11 @@ void fbdisplay(char message[2][64]) {
 
   // Ensure the messages are properly null-terminated
   message[0][63] = '\0';
-  //message[1][63] = '\0';
+  message[1][63] = '\0';
 
   // Format messages with IP and copy them to `display[]`
   snprintf(display[18], 64, "%s%s", sender_ip, message[0]);  // Attach IP to first message
-  snprintf(display[19], 64, "%s%s", sender_ip, message[1]);  // Attach IP to second message
+  //snprintf(display[19], 64, "%s%s", sender_ip, message[1]);  // Attach IP to second message
 
   // Debugging: Print to terminal to verify message formatting
   printf("Formatted Message 1: %s\n", display[18]);
