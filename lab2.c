@@ -348,6 +348,9 @@ if (packet.keycode[0] == 0x4F) {
                     usleep(100000);  // 100ms delay between repeated characters
                // }
             }
+            else{
+              break;
+            }
         }
 
         // Reset last key when released
