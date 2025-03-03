@@ -336,7 +336,7 @@ if (packet.keycode[0] == 0x4F) {
         
 
         // Check if the key is being held
-        int counter=0
+        int counter=0;
         while (input==last_key) {  // Same key is being held
             //clock_t elapsed_time = (clock() - start_time) * 1000 / CLOCKS_PER_SEC;
             
