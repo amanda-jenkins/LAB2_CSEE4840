@@ -92,9 +92,9 @@ char display[20][64];
 
 void fbdisplay(char message[2][64]) {
   int rows, cols;
-  
-  // Hardcoded sender IP (you can change this manually)
-  const char *sender_ip = "[192.168.1.10] ";  // Hardcoded IP
+
+  // Hardcoded sender IP (you can replace this with a dynamic one)
+  const char *sender_ip = "[192.168.1.10] ";  // Example hardcoded IP
 
   // Scroll messages up to make space for new ones
   for (rows = 0; rows < 18; rows++) {
@@ -105,16 +105,13 @@ void fbdisplay(char message[2][64]) {
   memset(display[18], ' ', 64);
   memset(display[19], ' ', 64);
 
-  // Format messages with IP before displaying
-  char formatted_msg1[64];
-  char formatted_msg2[64];
+  // Format messages with IP and copy them to `display[]`
+  snprintf(display[18], 64, "%s%s", sender_ip, message[0]);  // Attach IP to first message
+  snprintf(display[19], 64, "%s%s", sender_ip, message[1]);  // Attach IP to second message
 
-  snprintf(formatted_msg1, 64, "%s%s", sender_ip, message[0]);  // Attach IP
-  snprintf(formatted_msg2, 64, "%s%s", sender_ip, message[1]);  // Attach IP
-
-  // Store formatted messages in the last two rows
-  strncpy(display[18], formatted_msg1, 64);
-  strncpy(display[19], formatted_msg2, 64);
+  // Debugging: Print to terminal to verify message formatting
+  printf("Formatted Message 1: %s\n", display[18]);
+  printf("Formatted Message 2: %s\n", display[19]);
 
   // Redraw the entire display on the framebuffer
   for (rows = 0; rows < 20; rows++) {
@@ -123,6 +120,7 @@ void fbdisplay(char message[2][64]) {
       }
   }
 }
+
 
 
 //memset(display[18],' ',64);
