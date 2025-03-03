@@ -94,7 +94,7 @@ void fbdisplay(char message[2][64]) {
   int rows, cols;
 
   // Hardcoded sender IP (you can replace this with a dynamic one)
-  const char *sender_ip = "[192.168.1.10] ";  // Example hardcoded IP
+  const char *sender_ip = "[128.59.19.114] ";  
 
   // Scroll messages up to make space for new ones
   for (rows = 0; rows < 18; rows++) {
@@ -111,7 +111,7 @@ void fbdisplay(char message[2][64]) {
 
   // Debugging: Print to terminal to verify message formatting
   printf("Formatted Message 1: %s\n", display[18]);
-  printf("Formatted Message 2: %s\n", display[19]);
+  //printf("Formatted Message 2: %s\n", display[19]);
 
   // Redraw the entire display on the framebuffer
   for (rows = 0; rows < 20; rows++) {
