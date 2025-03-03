@@ -335,7 +335,7 @@ if (packet.keycode[0] == 0x4F) {
         columns++;
 
         // Check if the key is being held
-        while (packet.keycode[0] == last_key) {  // Same key is being held
+        while (input== last_key) {  // Same key is being held
             clock_t elapsed_time = (clock() - start_time) * 1000 / CLOCKS_PER_SEC;
 
             if (elapsed_time >= 500) {  // If held for 500ms, start repeating
@@ -351,7 +351,7 @@ if (packet.keycode[0] == 0x4F) {
         }
 
         // Reset last key when released
-        if (packet.keycode[0] == 0x00) {
+        if (input == 0x00) {
             last_key = '\0';  // Reset when no key is being pressed
         }
     }
