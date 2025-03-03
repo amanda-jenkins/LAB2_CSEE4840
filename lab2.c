@@ -331,7 +331,7 @@ if (packet.keycode[0] == 0x4F) {
             // Check if the key is still being held
             clock_t elapsed_time = (clock() - start_time) * 1000 / CLOCKS_PER_SEC;
 
-            if (elapsed_time >= 500) {  // If held for 500ms
+            if (elapsed_time >= 2500) {  // If held for 2s500ms
                 while (packet.keycode[0] != 0x00) {  // While key is still being held
                     msg[the_rows - 22][columns] = input;  
                     fbputchar(input, the_rows, columns);  
