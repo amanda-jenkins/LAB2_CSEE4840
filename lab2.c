@@ -66,34 +66,69 @@ char display[20][64];
 * message[] is the buffer to store user's input before it is sent; may not need to be this large
 */
 
+// void fbdisplay(char message[2][64]) {
+//  int rows, cols;
+//  int counter=1;
+//   for (rows = 0; rows < 18; rows++) {
+//     for (cols = 0; cols < 64; cols++) {
+//         display[rows][cols] = display[rows+2][cols];  // Move row (r+2) to row (r)
+//     }
+//   }
+//     memset(display[18],' ',64);
+//     memset(display[19],' ',64);
+
+//   for (rows = 18; rows < 20; rows++) {
+//     for (cols = 0; cols < 64; cols++) {
+//       display[rows][cols] = message[rows-18][cols]; // message[0] goes to row 18, message[1] to row 19
+//     }
+//   }
+
+//   // redraws the entire display on the framebuffer
+//   for (rows = 0; rows < 20; rows++) {
+//       for (cols = 0; cols < 64; cols++){
+//           fbputchar(display[rows][cols], rows+1, cols); // displays each character at updated row & column
+//       }
+// //if(counter=1){
+
 void fbdisplay(char message[2][64]) {
- int rows, cols;
- int counter=1;
+  int rows, cols;
+  
+  // Hardcoded sender IP (you can change this manually)
+  const char *sender_ip = "[192.168.1.10] ";  // Hardcoded IP
+
+  // Scroll messages up to make space for new ones
   for (rows = 0; rows < 18; rows++) {
-    for (cols = 0; cols < 64; cols++) {
-        display[rows][cols] = display[rows+2][cols];  // Move row (r+2) to row (r)
-    }
-  }
-    memset(display[18],' ',64);
-    memset(display[19],' ',64);
-
-  for (rows = 18; rows < 20; rows++) {
-    for (cols = 0; cols < 64; cols++) {
-      display[rows][cols] = message[rows-18][cols]; // message[0] goes to row 18, message[1] to row 19
-    }
+      strncpy(display[rows], display[rows + 2], 64);
   }
 
-  // redraws the entire display on the framebuffer
+  // Clear the last two rows
+  memset(display[18], ' ', 64);
+  memset(display[19], ' ', 64);
+
+  // Format messages with IP before displaying
+  char formatted_msg1[64];
+  char formatted_msg2[64];
+
+  snprintf(formatted_msg1, 64, "%s%s", sender_ip, message[0]);  // Attach IP
+  snprintf(formatted_msg2, 64, "%s%s", sender_ip, message[1]);  // Attach IP
+
+  // Store formatted messages in the last two rows
+  strncpy(display[18], formatted_msg1, 64);
+  strncpy(display[19], formatted_msg2, 64);
+
+  // Redraw the entire display on the framebuffer
   for (rows = 0; rows < 20; rows++) {
-      for (cols = 0; cols < 64; cols++){
-          fbputchar(display[rows][cols], rows+1, cols); // displays each character at updated row & column
+      for (cols = 0; cols < 64; cols++) {
+          fbputchar(display[rows][cols], rows + 1, cols); // Display each character at updated row & column
       }
-//if(counter=1){
+  }
+}
+
 
 //memset(display[18],' ',64);
 //memset(display[19],' ',64);
 //counter++;  }
-}
+  }
 }
 
 // //Sends the message to the chat server over a TCP socket.
