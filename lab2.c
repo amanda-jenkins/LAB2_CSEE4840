@@ -319,8 +319,8 @@ if (packet.keycode[0] == 0x4F) {
    //checks if it is a valid char
    // if(keystate[1]=='5'){
     // if(keystate[2]!='0'){
-     static char last_key = '\0';  // Stores last pressed key
-   static clock_t start_time = 0; // Track when key was first pressed
+    char last_key = '0x55';  // Stores last pressed key
+    clock_t start_time = 0; // Track when key was first pressed
 
    // Check if the input is valid
    if (columns < 63) {  // Check if there is space in the row
@@ -335,7 +335,7 @@ if (packet.keycode[0] == 0x4F) {
         columns++;
 
         // Check if the key is being held
-        while (input== last_key) {  // Same key is being held
+        while (input==last_key) {  // Same key is being held
             clock_t elapsed_time = (clock() - start_time) * 1000 / CLOCKS_PER_SEC;
 
             if (elapsed_time >= 500) {  // If held for 500ms, start repeating
