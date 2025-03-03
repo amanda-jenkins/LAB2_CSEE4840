@@ -94,7 +94,7 @@ void fbdisplay(char message[2][64]) {
   int rows, cols;
 
   // Hardcoded sender IP (you can replace this with a dynamic one)
-  const char *sender_ip = "[128.59.19.114] ";  
+  const char *sender_ip = "[128.59.19.114]";  
 
   // Scroll messages up to make space for new ones
   for (rows = 0; rows < 18; rows++) {
@@ -104,6 +104,10 @@ void fbdisplay(char message[2][64]) {
   // Clear the last two rows
   memset(display[18], ' ', 64);
   memset(display[19], ' ', 64);
+
+  // Ensure the messages are properly null-terminated
+  message[0][63] = '\0';
+  message[1][63] = '\0';
 
   // Format messages with IP and copy them to `display[]`
   snprintf(display[18], 64, "%s%s", sender_ip, message[0]);  // Attach IP to first message
@@ -375,9 +379,7 @@ return '\0';
     fbputchar(key_input(keystate), 0, 54);
 
 
-	    
-
-
+	  
     }
   }
   /* Terminate the network thread */
