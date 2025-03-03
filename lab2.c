@@ -319,29 +319,41 @@ if (packet.keycode[0] == 0x4F) {
    //checks if it is a valid char
    // if(keystate[1]=='5'){
     // if(keystate[2]!='0'){
-     if (columns < 63) {  // Check if there is space in the row
-        clock_t start_time = clock();  // Start timing when key is pressed
+     static char last_key = '\0';  // Stores last pressed key
+   static clock_t start_time = 0; // Track when key was first pressed
 
-        do {
-            msg[the_rows - 22][columns] = input;  // Store the typed character
-            fbputchar(input, the_rows, columns);  // Display it on the screen
-            fbputchar('_', the_rows, columns + 1);  // Move cursor forward
-            columns++;
+   // Check if the input is valid
+   if (columns < 63) {  // Check if there is space in the row
+        if (input != last_key) {  // First press of a new key
+            last_key = input;
+            start_time = clock();  // Start timing only for new key
+        }
 
-            // Check if the key is still being held
+        msg[the_rows - 22][columns] = input;  // Store the typed character
+        fbputchar(input, the_rows, columns);  // Display it on the screen
+        fbputchar('_', the_rows, columns + 1);  // Move cursor forward
+        columns++;
+
+        // Check if the key is being held
+        while (packet.keycode[0] == last_key) {  // Same key is being held
             clock_t elapsed_time = (clock() - start_time) * 1000 / CLOCKS_PER_SEC;
 
-            if (elapsed_time >= 2500) {  // If held for 2s500ms
-                while (packet.keycode[0] != 0x00) {  // While key is still being held
-                    msg[the_rows - 22][columns] = input;  
-                    fbputchar(input, the_rows, columns);  
-                    fbputchar('_', the_rows, columns + 1);  
+            if (elapsed_time >= 500) {  // If held for 500ms, start repeating
+                while (packet.keycode[0] == last_key) {  // Continue repeating if key is still held
+                    msg[the_rows - 22][columns] = input;
+                    fbputchar(input, the_rows, columns);
+                    fbputchar('_', the_rows, columns + 1);
                     columns++;
 
                     usleep(100000);  // 100ms delay between repeated characters
                 }
             }
-        } while (packet.keycode[0] != 0x00);  // Stop when key is released
+        }
+
+        // Reset last key when released
+        if (packet.keycode[0] == 0x00) {
+            last_key = '\0';  // Reset when no key is being pressed
+        }
     }
 //       if (columns < 63) {  //check condition that the row has space
         
