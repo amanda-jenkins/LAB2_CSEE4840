@@ -319,14 +319,40 @@ if (packet.keycode[0] == 0x4F) {
    //checks if it is a valid char
    // if(keystate[1]=='5'){
     // if(keystate[2]!='0'){
-      if (columns < 63) {  //check condition that the row has space
-        msg[the_rows-22][columns] = input;             // store typed character
-        fbputchar(input, the_rows, columns);           // display on screen
-        fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
-        columns++;
-//	}
-//	}
-      }
+     if (columns < 63) {  // Check if there is space in the row
+        clock_t start_time = clock();  // Start timing when key is pressed
+
+        do {
+            msg[the_rows - 22][columns] = input;  // Store the typed character
+            fbputchar(input, the_rows, columns);  // Display it on the screen
+            fbputchar('_', the_rows, columns + 1);  // Move cursor forward
+            columns++;
+
+            // Check if the key is still being held
+            clock_t elapsed_time = (clock() - start_time) * 1000 / CLOCKS_PER_SEC;
+
+            if (elapsed_time >= 500) {  // If held for 500ms
+                while (packet.keycode[0] != 0x00) {  // While key is still being held
+                    msg[the_rows - 22][columns] = input;  
+                    fbputchar(input, the_rows, columns);  
+                    fbputchar('_', the_rows, columns + 1);  
+                    columns++;
+
+                    usleep(100000);  // 100ms delay between repeated characters
+                }
+            }
+        } while (packet.keycode[0] != 0x00);  // Stop when key is released
+    }
+//       if (columns < 63) {  //check condition that the row has space
+        
+        
+//         msg[the_rows-22][columns] = input;             // store typed character
+//         fbputchar(input, the_rows, columns);           // display on screen
+//         fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
+//         columns++;
+// //	}
+// //	}
+//       }
 if(keystate[1]=='5' && keystate[2]=='0')
 {
 return '\0';
