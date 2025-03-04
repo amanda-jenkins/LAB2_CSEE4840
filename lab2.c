@@ -324,8 +324,6 @@ if (packet.keycode[0] == 0x4F) {
         fbputchar(input, the_rows, columns);           // display on screen
         fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
         columns++;
-//	}
-//	}
       }
 if(keystate[1]=='5' && keystate[2]=='0')
 {
@@ -341,11 +339,6 @@ return '\0';
       } 
     }
     fbputchar(key_input(keystate), 0, 54);
-
-
-	    
-
-
     }
   }
   /* Terminate the network thread */
@@ -365,7 +358,7 @@ void *network_thread_f(void *ignored)
   /* Receive data */
   while ((data = read(sockfd, recvBuf, BUFFER_SIZE - 1)) > 0) {
     recvBuf[data] = '\0';  // Null-terminate the received message
-    printf("%s\n", recvBuf); // Print received message for debugging
+    //printf("%s\n", recvBuf); // Print received message for debugging
     
     // memset(display, ' ', sizeof(display));
 
