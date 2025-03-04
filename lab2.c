@@ -360,7 +360,7 @@ void *network_thread_f(void *ignored)
     recvBuf[data] = '\0';  // Null-terminate the received message
     printf("%s\n", recvBuf); // Print received message for debugging
     
-    memset(msg, ' ', sizeof(msg));
+    //memset(msg, ' ', sizeof(msg));
 
     // Shift old messages up to make room for new ones
     int r, c;
