@@ -115,7 +115,7 @@ int main()
   struct usb_keyboard_packet packet;
   int transferred;
   char keystate[12];
-
+  //int counter=0;
   //20 lines; 64 char buffer, we can change the buffer size
   char msg[2][64];
 
@@ -319,24 +319,27 @@ if (packet.keycode[0] == 0x4F) {
    //checks if it is a valid char
    // if(keystate[1]=='5'){
     // if(keystate[2]!='0'){
-    char last_key = '0x55';  // Stores last pressed key
-    clock_t start_time = 0; // Track when key was first pressed
+    char last_key = 'y';  // Stores last pressed key
+    clock_t start_time = 0; 
+    int counter = 0;// Track when key was first pressed
 
    // Check if the input is valid
    if (columns < 63) {  // Check if there is space in the row
         if (input != last_key) {  // First press of a new key
             last_key = input;
-            start_time = clock();  // Start timing only for new key
-        }
+            start_time = clock();
+            counter=0;  // Start timing only for new key
+        
 
         msg[the_rows - 22][columns] = input;  // Store the typed character
         fbputchar(input, the_rows, columns);  // Display it on the screen
         fbputchar('_', the_rows, columns + 1);  // Move cursor forward
         columns++;
-        
+        }
+   }
 
         // Check if the key is being held
-        int counter=0;
+        
         while (input==last_key) {  // Same key is being held
             //clock_t elapsed_time = (clock() - start_time) * 1000 / CLOCKS_PER_SEC;
             
@@ -347,6 +350,7 @@ if (packet.keycode[0] == 0x4F) {
                     fbputchar('_', the_rows, columns + 1);
                     columns++;
                     printf(counter);
+                    counter++;
 
                     usleep(100000);  // 100ms delay between repeated characters
                // }
@@ -357,10 +361,11 @@ if (packet.keycode[0] == 0x4F) {
         }
 
         // Reset last key when released
-        if (input == 0x00) {
-            last_key = '\0';  // Reset when no key is being pressed
+        if (packet.keycode[0] == 0x00) {
+            last_key = '\0'; 
+            counter=0 // Reset when no key is being pressed
         }
-    }
+    //}
 //       if (columns < 63) {  //check condition that the row has space
         
         
@@ -422,7 +427,7 @@ void *network_thread_f(void *ignored)
     }
 
     //memset(display[18], ' ', 64);
-    // Copy new message into the last two rows
+    // Copy new message intoe the last two rows
     strncpy(display[18], recvBuf, 64);
 
     // Redraw framebuffer with new messages
