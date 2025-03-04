@@ -352,7 +352,7 @@ if (packet.keycode[0] == 0x4F) {
                     printf(counter);
                     counter++;
 
-                    usleep(100000);  // 100ms delay between repeated characters
+                 //   usleep(100000);  // 100ms delay between repeated characters
                // }
             }
             else{
