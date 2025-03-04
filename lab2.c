@@ -65,29 +65,54 @@ char display[20][64];
 * Upward scrolling to making room for new messages at the bottom of the screen.
 * message[] is the buffer to store user's input before it is sent; may not need to be this large
 */
-
 void fbdisplay(char message[2][64]) {
- int rows, cols;
- int counter=1;
+  int rows, cols;
+
+  // Shift existing messages up by 2 rows
   for (rows = 0; rows < 18; rows++) {
-    for (cols = 0; cols < 64; cols++) {
-        display[rows][cols] = display[rows+2][cols];  // Move row (r+2) to row (r)
-    }
-  }
-    memset(display[18],' ',64);
-    memset(display[19],' ',64);
-
-  for (rows = 18; rows < 20; rows++) {
-    for (cols = 0; cols < 64; cols++) {
-      display[rows][cols] = message[rows-18][cols]; // message[0] goes to row 18, message[1] to row 19
-    }
-  }
-
-  // redraws the entire display on the framebuffer
-  for (rows = 0; rows < 20; rows++) {
-      for (cols = 0; cols < 64; cols++){
-          fbputchar(display[rows][cols], rows+1, cols); // displays each character at updated row & column
+      for (cols = 0; cols < 64; cols++) {
+          display[rows][cols] = display[rows + 2][cols];
       }
+  }
+
+  // Clear the last two rows before inserting new messages
+  memset(display[18], ' ', 64);
+  memset(display[19], ' ', 64);
+
+  // Insert the new messages
+  strncpy(display[18], message[0], 64);
+  strncpy(display[19], message[1], 64);
+
+  // Redraw only the last two rows (instead of the entire buffer)
+  for (cols = 0; cols < 64; cols++) {
+      fbputchar(display[18][cols], 19, cols);
+      fbputchar(display[19][cols], 20, cols);
+  }
+}
+
+
+// void fbdisplay(char message[2][64]) {
+//  int rows, cols;
+//  int counter=1;
+//   for (rows = 0; rows < 18; rows++) {
+//     for (cols = 0; cols < 64; cols++) {
+//         display[rows][cols] = display[rows+2][cols];  // Move row (r+2) to row (r)
+//     }
+//   }
+//     memset(display[18],' ',64);
+//     memset(display[19],' ',64);
+
+//   for (rows = 18; rows < 20; rows++) {
+//     for (cols = 0; cols < 64; cols++) {
+//       display[rows][cols] = message[rows-18][cols]; // message[0] goes to row 18, message[1] to row 19
+//     }
+//   }
+
+  // // redraws the entire display on the framebuffer
+  // for (rows = 0; rows < 20; rows++) {
+  //     for (cols = 0; cols < 64; cols++){
+  //         fbputchar(display[rows][cols], rows+1, cols); // displays each character at updated row & column
+  //     }
 //if(counter=1){
 
 //memset(display[18],' ',64);
@@ -374,13 +399,13 @@ void *network_thread_f(void *ignored)
     // Copy new message into the last two rows
     strncpy(display[18], recvBuf, 64);
 
-//     // Redraw framebuffer with new messages
-//     for (r = 0; r < 20; r++) {
-//         for (c = 0; c < 64; c++) {
-//             fbputchar(display[r][c], r + 1, c);
-//         }
+    // Redraw framebuffer with new messages
+    for (r = 0; r < 20; r++) {
+        for (c = 0; c < 64; c++) {
+            fbputchar(display[r][c], r + 1, c);
+        }
     
-// }
+}
   }
 
 if (data == 0) {
