@@ -96,14 +96,14 @@ void fbdisplay(char message[2][64]) {
 }
 }
 
-// //Sends the message to the chat server over a TCP socket.
-// void server_send(char *sent_msg) {
-//     if (write(sockfd, sent_msg, strlen(sent_msg)) > 0) {
-//         printf("SENT: %s\n", sent_msg);
-//     } else {
-//         perror("Error sending message to server");
-//     }
-// }
+//Sends the message to the chat server over a TCP socket.
+void server_send(char *sent_msg) {
+    if (write(sockfd, sent_msg, strlen(sent_msg)) > 0) {
+        printf("SENT: %s\n", sent_msg);
+    } else {
+        perror("Error sending message to server");
+    }
+}
 
 
 
@@ -357,150 +357,56 @@ return '\0';
   return 0;
 }
 
-// //should run concurrently with the main program
-// void *network_thread_f(void *ignored)
-// {
-//   char recvBuf[BUFFER_SIZE];
-//   int data;
-//   /* Receive data */
-//   while ((data = read(sockfd, recvBuf, BUFFER_SIZE - 1)) > 0) {
-//     recvBuf[data] = '\0';  // Null-terminate the received message
-//     printf("%s\n", recvBuf); // Print received message for debugging
-    
-//     // memset(display, ' ', sizeof(display));
-
-//     // Shift old messages up to make room for new ones
-//     int r, c;
-//     for (r = 0; r < 18; r++) {
-//         for (c = 0; c < 64; c++) {
-//             display[r][c] = display[r + 2][c];
-//         }
-//     }
-
-//     //memset(display[18], ' ', 64);
-//     // Copy new message into the last two rows
-//     strncpy(display[18], recvBuf, 64);
-
-//     // Redraw framebuffer with new messages
-//     for (r = 0; r < 20; r++) {
-//         for (c = 0; c < 64; c++) {
-//             fbputchar(display[r][c], r + 1, c);
-//         }
-    
-// }
-//   }
-
-// if (data == 0) {
-//     printf("## Server disconnected\n");
-//   } else {
-//       perror("## Error reading from server");
-//   }
-
-// return NULL;
-// }
-
-  // FOR CLIENT SERVER SEDNING MESSAGES!!
-
-
-  // messages recieved from the chat server to display them 
-  //strncpy(printBuf[0], recvBuf, BUFFER_SIZE/2);
-  //strncpy(printBuf[2], recvBuf, BUFFER_SIZE/2);
-  
-  //fbdisplay(printBuf);
-
-//   return NULL;
-// }
-
-
-void server_send(char *sent_msg) {
-  int n;
-  if (n = write(sockfd, sent_msg, BUFFER_SIZE - 1) > 0) 
-  {
-    printf("Sent message here: %s", sent_msg);
-  }
-}
-
-// //should run concurrently with the main program
-// void *network_thread_f(void *ignored)
-// {
-//   char recvBuf[BUFFER_SIZE];
-//   int data;
-//   /* Receive data */
-//   while ((data = read(sockfd, recvBuf, BUFFER_SIZE - 1)) > 0) {
-//     recvBuf[data] = '\0';  // Null-terminate the received message
-//     printf("%s\n", recvBuf); // Print received message for debugging
-    
-//     // memset(display, ' ', sizeof(display));
-
-//     // Shift old messages up to make room for new ones
-//     int r, c;
-//     for (r = 0; r < 18; r++) {
-//         for (c = 0; c < 64; c++) {
-//             display[r][c] = display[r + 2][c];
-//         }
-//     }
-
-//     //memset(display[18], ' ', 64);
-//     // Copy new message into the last two rows
-//     strncpy(display[18], recvBuf, 64);
-
-//     // Redraw framebuffer with new messages
-//     for (r = 0; r < 20; r++) {
-//         for (c = 0; c < 64; c++) {
-//             fbputchar(display[r][c], r + 1, c);
-//         }
-    
-// }
-// }
-
-// if (data == 0) {
-//     printf("## Server disconnected\n");
-//   } else {
-//       perror("## Error reading from server");
-//   }
-
-// return NULL;
-// }
-
-  // FOR CLIENT SERVER SEDNING MESSAGES!!
-
-
-  // messages recieved from the chat server to display them 
-  //strncpy(printBuf[0], recvBuf, BUFFER_SIZE/2);
-  //strncpy(printBuf[2], recvBuf, BUFFER_SIZE/2);
-  
-  //fbdisplay(printBuf);
-
-//   return NULL;
-// }
-
+//should run concurrently with the main program
 void *network_thread_f(void *ignored)
 {
   char recvBuf[BUFFER_SIZE];
-  //recvBuf[data] = '\0';  // Null-terminate the received message
-  
-  char **print_sent = malloc(sizeof(char)*64*21);
-  int n;
-
-   // Shift old messages up to make room for new ones
-   for (int i = 0; i < 18; i++) {
-    strncpy(display[i], display[i + 2], 64);
-   }
-
+  int data;
   /* Receive data */
-  while ( (n = read(sockfd, &recvBuf, BUFFER_SIZE - 1)) > 0 ) {
-    recvBuf[n] = '\0';
-    printf("%s\n", recvBuf); 
-    fbputs(recvBuf, 8, 0);
-  }
-  
-  // strncpy(print_sent[0], recvBuf, BUFFER_SIZE/2);
-  // strncpy(print_sent[1], recvBuf, BUFFER_SIZE/2);
+  while ((data = read(sockfd, recvBuf, BUFFER_SIZE - 1)) > 0) {
+    recvBuf[data] = '\0';  // Null-terminate the received message
+    printf("%s\n", recvBuf); // Print received message for debugging
+    
+    // memset(display, ' ', sizeof(display));
 
-  strncpy(display[18], print_sent[0], 64);
-  strncpy(display[19], print_sent[1], 64);
-  
-  fbdisplay(display);
+    // Shift old messages up to make room for new ones
+    int r, c;
+    for (r = 0; r < 18; r++) {
+        for (c = 0; c < 64; c++) {
+            display[r][c] = display[r + 2][c];
+        }
+    }
 
-  return NULL;
+    //memset(display[18], ' ', 64);
+    // Copy new message into the last two rows
+    strncpy(display[18], recvBuf, 64);
+
+    // Redraw framebuffer with new messages
+    for (r = 0; r < 20; r++) {
+        for (c = 0; c < 64; c++) {
+            fbputchar(display[r][c], r + 1, c);
+        }
+    
 }
+  }
+
+if (data == 0) {
+    printf("## Server disconnected\n");
+  } else {
+      perror("## Error reading from server");
+  }
+
+return NULL;
+}
+
+  // FOR CLIENT SERVER SEDNING MESSAGES!!
+
+
+  // messages recieved from the chat server to display them 
+  //strncpy(printBuf[0], recvBuf, BUFFER_SIZE/2);
+  //strncpy(printBuf[2], recvBuf, BUFFER_SIZE/2);
+  
+  //fbdisplay(printBuf);
+
+//   return NULL;
+// }
