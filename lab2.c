@@ -327,7 +327,7 @@ if (packet.keycode[0] == 0x4F) {
    if (columns < 63) {  // Check if there is space in the row
         if (input != last_key) {  // First press of a new key
             last_key = input;
-            start_time = clock();
+            //start_time = clock();
             counter=0;  // Start timing only for new key
         
 
