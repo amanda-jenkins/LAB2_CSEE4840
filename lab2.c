@@ -363,7 +363,7 @@ if (packet.keycode[0] == 0x4F) {
         // Reset last key when released
         if (packet.keycode[0] == 0x00) {
             last_key = '\0'; 
-            counter=0 // Reset when no key is being pressed
+            counter=0; // Reset when no key is being pressed
         }
     //}
 //       if (columns < 63) {  //check condition that the row has space
