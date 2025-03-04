@@ -118,8 +118,7 @@ void fbdisplay(char message[2][64]) {
 //memset(display[18],' ',64);
 //memset(display[19],' ',64);
 //counter++;  }
-}
-}
+
 
 //Sends the message to the chat server over a TCP socket.
 void server_send(char *sent_msg) {
