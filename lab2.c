@@ -336,7 +336,7 @@ if (packet.keycode[0] == 0x4F) {
         fbputchar('_', the_rows, columns + 1);  // Move cursor forward
         columns++;
         }
-   }
+   
 
         // Check if the key is being held
         
@@ -365,6 +365,7 @@ if (packet.keycode[0] == 0x4F) {
             last_key = '\0'; 
             counter=0; // Reset when no key is being pressed
         }
+   }
     //}
 //       if (columns < 63) {  //check condition that the row has space
         
