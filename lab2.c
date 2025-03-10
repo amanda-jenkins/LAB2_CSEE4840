@@ -13,8 +13,6 @@
 #include <unistd.h>
 #include "usbkeyboard.h"
 #include <pthread.h>
-#include <sys/time.h>  // For gettimeofday()
-
 
 /* Update SERVER_HOST to be the IP address of
  * the chat server you are connecting to
@@ -22,8 +20,6 @@
 /* arthur.cs.columbia.edu */
 #define SERVER_HOST "128.59.19.114"
 #define SERVER_PORT 42000
-#define LONG_PRESS_THRESHOLD 500  // 500ms to detect long press
-#define REPEAT_RATE 100           // 100ms delay between repeated prints
 
 
 
@@ -133,13 +129,7 @@ void server_send(char *sent_msg) {
     }
 }
 
-struct timeval press_time;
-int key_held = 0;  // Flag to track if a key is being held down
 
-void print_character(char input, int row, int col) {
-    fbputchar(input, row, col);
-    fbputchar('_', row, col + 1);  // Move cursor forward
-}
 
 int main()
 {
@@ -150,7 +140,6 @@ int main()
   int transferred;
   char keystate[12];
 
-
   //20 lines; 64 char buffer, we can change the buffer size
   char msg[2][64];
 
@@ -160,9 +149,6 @@ int main()
   int cursor_place = 0;
   int the_rows = 22;
   int columns = 0;
-
-  char input; 
-  
 
 
   if ((err = fbopen()) != 0) {
@@ -246,49 +232,15 @@ fbputchar('*',20,col);
   /* Look for and handle keypresses */
   for (;;) {
     libusb_interrupt_transfer(keyboard, endpoint_address,
-                              (unsigned char *) &packet, sizeof(packet),
-                              &transferred, 0);
-
+			      (unsigned char *) &packet, sizeof(packet),
+			      &transferred, 0);
     if (transferred == sizeof(packet)) {
-         input = key_input(keystate);
-
-        if (packet.keycode[0] != 0) {  // A key is pressed
-            if (!key_held) {
-                gettimeofday(&press_time, NULL);
-                key_held = 1;
-                msg[the_rows-22][columns] = input;
-                fbputchar(input, the_rows, columns);
-                fbputchar('_', the_rows, columns + 1);
-                columns = (columns + 1) % 64;
-            } else {
-                struct timeval now;
-                gettimeofday(&now, NULL);
-                long elapsed_time = (now.tv_sec - press_time.tv_sec) * 1000 +
-                                   (now.tv_usec - press_time.tv_usec) / 1000;
-
-                if (elapsed_time >= LONG_PRESS_THRESHOLD) {
-                    while (packet.keycode[0] != 0) {  // Continuous printing
-                        msg[the_rows-22][columns] = input;
-                        fbputchar(input, the_rows, columns);
-                        fbputchar('_', the_rows, columns + 1);
-                        columns = (columns + 1) % 64;
-                        usleep(REPEAT_RATE * 1000);
-
-                        libusb_interrupt_transfer(keyboard, endpoint_address,
-                                                  (unsigned char *) &packet, sizeof(packet),
-                                                  &transferred, 0);
-                    }
-                }
-            }
-        } else {
-            key_held = 0;
-        }
-
-
-
-
+      sprintf(keystate, "%02x %02x %02x", packet.modifiers, packet.keycode[0],
+	      packet.keycode[1]);
+      printf("%s\n", keystate);
+      fbputs(keystate, 6, 0);
       if (packet.keycode[0] == 0x29) { /* ESC pressed? */
-	      break;
+	break;
       }
       /*
       * To handle the keyboard input; can also write this in a seperate function
@@ -464,14 +416,3 @@ if (data == 0) {
 return NULL;
 }
 
-  // FOR CLIENT SERVER SEDNING MESSAGES!!
-
-
-  // messages recieved from the chat server to display them 
-  //strncpy(printBuf[0], recvBuf, BUFFER_SIZE/2);
-  //strncpy(printBuf[2], recvBuf, BUFFER_SIZE/2);
-  
-  //fbdisplay(printBuf);
-
-//   return NULL;
-// }
