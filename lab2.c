@@ -13,6 +13,8 @@
 #include <unistd.h>
 #include "usbkeyboard.h"
 #include <pthread.h>
+#include <sys/time.h>  // For gettimeofday()
+
 
 /* Update SERVER_HOST to be the IP address of
  * the chat server you are connecting to
@@ -20,6 +22,8 @@
 /* arthur.cs.columbia.edu */
 #define SERVER_HOST "128.59.19.114"
 #define SERVER_PORT 42000
+#define LONG_PRESS_THRESHOLD 500  // 500ms to detect long press
+#define REPEAT_RATE 100           // 100ms delay between repeated prints
 
 
 
@@ -65,36 +69,60 @@ char display[20][64];
 * Upward scrolling to making room for new messages at the bottom of the screen.
 * message[] is the buffer to store user's input before it is sent; may not need to be this large
 */
-
 void fbdisplay(char message[2][64]) {
- int rows, cols;
- int counter=1;
+  int rows, cols;
+
+  // Shift existing messages up by 2 rows
   for (rows = 0; rows < 18; rows++) {
-    for (cols = 0; cols < 64; cols++) {
-        display[rows][cols] = display[rows+2][cols];  // Move row (r+2) to row (r)
-    }
-  }
-    memset(display[18],' ',64);
-    memset(display[19],' ',64);
-
-  for (rows = 18; rows < 20; rows++) {
-    for (cols = 0; cols < 64; cols++) {
-      display[rows][cols] = message[rows-18][cols]; // message[0] goes to row 18, message[1] to row 19
-    }
-  }
-
-  // redraws the entire display on the framebuffer
-  for (rows = 0; rows < 20; rows++) {
-      for (cols = 0; cols < 64; cols++){
-          fbputchar(display[rows][cols], rows+1, cols); // displays each character at updated row & column
+      for (cols = 0; cols < 64; cols++) {
+          display[rows][cols] = display[rows + 2][cols];
       }
+  }
+
+  // Clear the last two rows before inserting new messages
+  memset(display[18], ' ', 64);
+  memset(display[19], ' ', 64);
+
+  // Insert the new messages
+  strncpy(display[18], message[0], 64);
+  strncpy(display[19], message[1], 64);
+
+  // Redraw only the last two rows (instead of the entire buffer)
+  for (cols = 0; cols < 64; cols++) {
+      fbputchar(display[18][cols], 19, cols);
+      fbputchar(display[19][cols], 20, cols);
+  }
+}
+
+
+// void fbdisplay(char message[2][64]) {
+//  int rows, cols;
+//  int counter=1;
+//   for (rows = 0; rows < 18; rows++) {
+//     for (cols = 0; cols < 64; cols++) {
+//         display[rows][cols] = display[rows+2][cols];  // Move row (r+2) to row (r)
+//     }
+//   }
+//     memset(display[18],' ',64);
+//     memset(display[19],' ',64);
+
+//   for (rows = 18; rows < 20; rows++) {
+//     for (cols = 0; cols < 64; cols++) {
+//       display[rows][cols] = message[rows-18][cols]; // message[0] goes to row 18, message[1] to row 19
+//     }
+//   }
+
+  // // redraws the entire display on the framebuffer
+  // for (rows = 0; rows < 20; rows++) {
+  //     for (cols = 0; cols < 64; cols++){
+  //         fbputchar(display[rows][cols], rows+1, cols); // displays each character at updated row & column
+  //     }
 //if(counter=1){
 
 //memset(display[18],' ',64);
 //memset(display[19],' ',64);
 //counter++;  }
-}
-}
+
 
 //Sends the message to the chat server over a TCP socket.
 void server_send(char *sent_msg) {
@@ -105,7 +133,13 @@ void server_send(char *sent_msg) {
     }
 }
 
+struct timeval press_time;
+int key_held = 0;  // Flag to track if a key is being held down
 
+void print_character(char input, int row, int col) {
+    fbputchar(input, row, col);
+    fbputchar('_', row, col + 1);  // Move cursor forward
+}
 
 int main()
 {
@@ -115,6 +149,7 @@ int main()
   struct usb_keyboard_packet packet;
   int transferred;
   char keystate[12];
+
 
   //20 lines; 64 char buffer, we can change the buffer size
   char msg[2][64];
@@ -208,15 +243,49 @@ fbputchar('*',20,col);
   /* Look for and handle keypresses */
   for (;;) {
     libusb_interrupt_transfer(keyboard, endpoint_address,
-			      (unsigned char *) &packet, sizeof(packet),
-			      &transferred, 0);
+                              (unsigned char *) &packet, sizeof(packet),
+                              &transferred, 0);
+
     if (transferred == sizeof(packet)) {
-      sprintf(keystate, "%02x %02x %02x", packet.modifiers, packet.keycode[0],
-	      packet.keycode[1]);
-      printf("%s\n", keystate);
-      fbputs(keystate, 6, 0);
+        char input = key_input(keystate);
+
+        if (packet.keycode[0] != 0) {  // A key is pressed
+            if (!key_held) {
+                gettimeofday(&press_time, NULL);
+                key_held = 1;
+                msg[the_rows-22][columns] = input;
+                fbputchar(input, the_rows, columns);
+                fbputchar('_', the_rows, columns + 1);
+                columns = (columns + 1) % 64;
+            } else {
+                struct timeval now;
+                gettimeofday(&now, NULL);
+                long elapsed_time = (now.tv_sec - press_time.tv_sec) * 1000 +
+                                   (now.tv_usec - press_time.tv_usec) / 1000;
+
+                if (elapsed_time >= LONG_PRESS_THRESHOLD) {
+                    while (packet.keycode[0] != 0) {  // Continuous printing
+                        msg[the_rows-22][columns] = input;
+                        fbputchar(input, the_rows, columns);
+                        fbputchar('_', the_rows, columns + 1);
+                        columns = (columns + 1) % 64;
+                        usleep(REPEAT_RATE * 1000);
+
+                        libusb_interrupt_transfer(keyboard, endpoint_address,
+                                                  (unsigned char *) &packet, sizeof(packet),
+                                                  &transferred, 0);
+                    }
+                }
+            }
+        } else {
+            key_held = 0;
+        }
+
+
+
+
       if (packet.keycode[0] == 0x29) { /* ESC pressed? */
-	break;
+	      break;
       }
       /*
       * To handle the keyboard input; can also write this in a seperate function
@@ -324,8 +393,6 @@ if (packet.keycode[0] == 0x4F) {
         fbputchar(input, the_rows, columns);           // display on screen
         fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
         columns++;
-//	}
-//	}
       }
 if(keystate[1]=='5' && keystate[2]=='0')
 {
@@ -341,29 +408,6 @@ return '\0';
       } 
     }
     fbputchar(key_input(keystate), 0, 54);
-
-
-    //commit and run snippet in lab
-
-      // char prev_input = '/0'
-	    // //long key press  
-      // if (columns < 63) {
-      //   msh[the_rows-22][columns] = input;
-      //   if prev_input = input; 
-
-      //   //repeat how many times??? (condition -> life key is pressed for 5 seconds, repeat X times?)
-      //   fbputchar(prev_input, the_rows, the_columns);
-      //   //for the cursor
-      //   fbputchar('_', the_rows, columns);
-
-      //   //implement gettimenow() in C; have to look up documentation!
-      // }
-      // else {
-      //   //print as normal
-      //   fbputchar(input, the_rows, the_columns); 
-      // }
-
-
     }
   }
   /* Terminate the network thread */
@@ -375,10 +419,6 @@ return '\0';
   return 0;
 }
 
-
-
-
-
 //should run concurrently with the main program
 void *network_thread_f(void *ignored)
 {
@@ -389,7 +429,7 @@ void *network_thread_f(void *ignored)
     recvBuf[data] = '\0';  // Null-terminate the received message
     printf("%s\n", recvBuf); // Print received message for debugging
     
-    // memset(display, ' ', sizeof(display));
+    //memset(msg, ' ', sizeof(msg));
 
     // Shift old messages up to make room for new ones
     int r, c;
