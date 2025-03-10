@@ -65,36 +65,60 @@ char display[20][64];
 * Upward scrolling to making room for new messages at the bottom of the screen.
 * message[] is the buffer to store user's input before it is sent; may not need to be this large
 */
-
 void fbdisplay(char message[2][64]) {
- int rows, cols;
- int counter=1;
+  int rows, cols;
+
+  // Shift existing messages up by 2 rows
   for (rows = 0; rows < 18; rows++) {
-    for (cols = 0; cols < 64; cols++) {
-        display[rows][cols] = display[rows+2][cols];  // Move row (r+2) to row (r)
-    }
-  }
-    memset(display[18],' ',64);
-    memset(display[19],' ',64);
-
-  for (rows = 18; rows < 20; rows++) {
-    for (cols = 0; cols < 64; cols++) {
-      display[rows][cols] = message[rows-18][cols]; // message[0] goes to row 18, message[1] to row 19
-    }
-  }
-
-  // redraws the entire display on the framebuffer
-  for (rows = 0; rows < 20; rows++) {
-      for (cols = 0; cols < 64; cols++){
-          fbputchar(display[rows][cols], rows+1, cols); // displays each character at updated row & column
+      for (cols = 0; cols < 64; cols++) {
+          display[rows][cols] = display[rows + 2][cols];
       }
+  }
+
+  // Clear the last two rows before inserting new messages
+  memset(display[18], ' ', 64);
+  memset(display[19], ' ', 64);
+
+  // Insert the new messages
+  strncpy(display[18], message[0], 64);
+  strncpy(display[19], message[1], 64);
+
+  // Redraw only the last two rows (instead of the entire buffer)
+  for (cols = 0; cols < 64; cols++) {
+      fbputchar(display[18][cols], 19, cols);
+      fbputchar(display[19][cols], 20, cols);
+  }
+}
+
+
+// void fbdisplay(char message[2][64]) {
+//  int rows, cols;
+//  int counter=1;
+//   for (rows = 0; rows < 18; rows++) {
+//     for (cols = 0; cols < 64; cols++) {
+//         display[rows][cols] = display[rows+2][cols];  // Move row (r+2) to row (r)
+//     }
+//   }
+//     memset(display[18],' ',64);
+//     memset(display[19],' ',64);
+
+//   for (rows = 18; rows < 20; rows++) {
+//     for (cols = 0; cols < 64; cols++) {
+//       display[rows][cols] = message[rows-18][cols]; // message[0] goes to row 18, message[1] to row 19
+//     }
+//   }
+
+  // // redraws the entire display on the framebuffer
+  // for (rows = 0; rows < 20; rows++) {
+  //     for (cols = 0; cols < 64; cols++){
+  //         fbputchar(display[rows][cols], rows+1, cols); // displays each character at updated row & column
+  //     }
 //if(counter=1){
 
 //memset(display[18],' ',64);
 //memset(display[19],' ',64);
 //counter++;  }
-}
-}
+
 
 //Sends the message to the chat server over a TCP socket.
 void server_send(char *sent_msg) {
@@ -324,8 +348,6 @@ if (packet.keycode[0] == 0x4F) {
         fbputchar(input, the_rows, columns);           // display on screen
         fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
         columns++;
-//	}
-//	}
       }
 if(keystate[1]=='5' && keystate[2]=='0')
 {
@@ -341,11 +363,6 @@ return '\0';
       } 
     }
     fbputchar(key_input(keystate), 0, 54);
-
-
-	    
-
-
     }
   }
   /* Terminate the network thread */
@@ -367,7 +384,7 @@ void *network_thread_f(void *ignored)
     recvBuf[data] = '\0';  // Null-terminate the received message
     printf("%s\n", recvBuf); // Print received message for debugging
     
-    // memset(display, ' ', sizeof(display));
+    //memset(msg, ' ', sizeof(msg));
 
     // Shift old messages up to make room for new ones
     int r, c;
