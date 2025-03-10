@@ -247,7 +247,7 @@ fbputchar('*',20,col);
                               &transferred, 0);
 
     if (transferred == sizeof(packet)) {
-        char input = key_input(keystate);
+         input = key_input(keystate);
 
         if (packet.keycode[0] != 0) {  // A key is pressed
             if (!key_held) {
