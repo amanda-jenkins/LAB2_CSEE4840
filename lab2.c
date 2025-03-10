@@ -337,18 +337,35 @@ if (packet.keycode[0] == 0x4F) {
     }
     // this converts keycode to ASCII & store in message buffer
     char input = key_input(keystate);
-    if (input != '\0')
- 
-{
-   //checks if it is a valid char
-   // if(keystate[1]=='5'){
-    // if(keystate[2]!='0'){
-      if (columns < 63) {  //check condition that the row has space
-        msg[the_rows-22][columns] = input;             // store typed character
-        fbputchar(input, the_rows, columns);           // display on screen
-        fbputchar('_', the_rows, columns + 1);         // morw cursor forward by 1
+    if (input != '\0') {
+    if (input != last_key) {  // First key press detected
+        last_key = input;
+        start_time = clock();  // Start timing
+        key_held = 1;
+
+        // Print first press
+        msg[the_rows-22][columns] = input;
+        fbputchar(input, the_rows, columns);
+        fbputchar('_', the_rows, columns + 1);
         columns++;
-      }
+    } else {  // Key is still being held
+        clock_t elapsed_time = (clock() - start_time) * 1000 / CLOCKS_PER_SEC;
+
+        if (elapsed_time >= long_press_delay && (elapsed_time % repeat_interval == 0)) {
+            // Print repeated press after delay
+            msg[the_rows-22][columns] = input;
+            fbputchar(input, the_rows, columns);
+            fbputchar('_', the_rows, columns + 1);
+            columns++;
+        }
+    }
+//}
+
+// Detect key release
+if (packet.keycode[0] == 0x00 && key_held) {
+    last_key = '\0';  // Reset
+    key_held = 0;
+}
 if(keystate[1]=='5' && keystate[2]=='0')
 {
 return '\0';
