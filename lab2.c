@@ -161,6 +161,9 @@ int main()
   int the_rows = 22;
   int columns = 0;
 
+  char input; 
+  
+
 
   if ((err = fbopen()) != 0) {
     fprintf(stderr, "Error: Could not open framebuffer: %d\n", err);
