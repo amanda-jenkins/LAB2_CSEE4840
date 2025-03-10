@@ -336,6 +336,14 @@ if (packet.keycode[0] == 0x4F) {
       cursor_place = 1;
     }
     // this converts keycode to ASCII & store in message buffer
+    char last_key = '\0';  // Stores last pressed key
+clock_t start_time = 0;
+int key_held = 0;  // Track if a key is being held
+
+const int long_press_delay = 500;  // Start repeating after 500ms
+const int repeat_interval = 100;   // Repeat every 100ms
+
+char input = key_input(keystate);  // Get ASCII character
     char input = key_input(keystate);
     if (input != '\0') {
     if (input != last_key) {  // First key press detected
