@@ -2,7 +2,7 @@
  *
  * CSEE 4840 Lab 2 for 2025
  *
- * Name/UNI: Amanda Jenkins (alj2155); Swapnil Banerjee ()
+ * Name/UNI: Amanda Jenkins (alj2155); Swapnil Banerjee (sb5041)
  */
 #include "fbputchar.h"
 #include <stdio.h>
